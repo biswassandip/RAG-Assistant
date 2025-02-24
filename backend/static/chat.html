@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG AI Chat</title>
+    <title>RAG AI Chat (Hybrid Search)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,10 +37,12 @@
         .faiss-response {
             color: #0077b6;
             font-weight: bold;
+            white-space: pre-wrap;
         }
 
         .llm-response {
             color: #008000;
+            white-space: pre-wrap;
         }
 
         .loading {
@@ -51,12 +53,12 @@
 </head>
 
 <body>
-    <h1>RAG AI Chat</h1>
+    <h1>RAG AI Chat (Hybrid Search)</h1>
     <input id="question" type="text" placeholder="Ask me anything..." />
     <button onclick="askQuestion()">Ask</button>
 
     <div class="response-container">
-        <h3>Retrieved Documents (FAISS):</h3>
+        <h3>Retrieved Documents (Hybrid Search):</h3>
         <p id="faiss-response" class="faiss-response loading">Waiting for response...</p>
 
         <h3>Final RAG Response (LLM):</h3>
@@ -68,7 +70,7 @@
 
         function askQuestion() {
             let question = document.getElementById("question").value;
-            document.getElementById("faiss-response").innerText = "Retrieving from FAISS...";
+            document.getElementById("faiss-response").innerText = "Retrieving documents...";
             document.getElementById("llm-response").innerText = "Generating response...";
 
             socket.send(question);

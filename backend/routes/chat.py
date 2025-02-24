@@ -7,7 +7,7 @@ router = APIRouter()
 
 @router.websocket("/chat")
 async def chat_stream(websocket: WebSocket):
-    """WebSocket endpoint for streaming FAISS and LLM responses."""
+    """WebSocket endpoint for streaming Hybrid Search (FAISS + BM25) and LLM responses."""
     await websocket.accept()
 
     while True:
@@ -15,11 +15,11 @@ async def chat_stream(websocket: WebSocket):
         question = await websocket.receive_text()
         print(f"Received question: {question}")
 
-        # Retrieve documents from FAISS
+        # Retrieve documents using Hybrid Search (BM25 + FAISS)
         retrieved_docs = vector_store.retrieve(question)
-        context = "\n".join([doc.page_content for doc in retrieved_docs])
+        context = "\n".join(retrieved_docs)
 
-        # Send FAISS response first
+        # Send Hybrid Search results first
         faiss_response = {"type": "faiss", "data": context}
         await websocket.send_json(faiss_response)
 
