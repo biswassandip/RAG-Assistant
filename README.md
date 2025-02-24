@@ -33,3 +33,7 @@ python3 --version
 python3 -m venv rag-backend
 source rag-backend/bin/activate
 deactivate
+
+
+pip freeze > requirements.txt
+pip install -r requirements.txt
