@@ -171,4 +171,4 @@ cython_debug/
 .pypirc
 
 /backend/rag-backend
-/backend/models
+/backend/models/*.*
