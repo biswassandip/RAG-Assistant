@@ -1,10 +1,11 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from routes.upload import router as upload_router
 from routes.query import router as query_router
 from routes.chat import router as chat_router  # Import WebSocket route
-from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="RAG API with Streaming", description="A RAG backend supporting real-time chat streaming.")
+app = FastAPI(title="RAG API with Document Upload",
+              description="A RAG backend supporting document upload & chat streaming.")
 
 # Serve static HTML for the chat UI
 app.mount("/static", StaticFiles(directory="static"), name="static")

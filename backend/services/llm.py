@@ -38,8 +38,8 @@ class LLMService:
 
             self.model = Llama(
                 model_path=model_path,
-                n_ctx=1024,  # Reduce context size for speed
-                n_batch=32,  # Increase batch size
+                n_ctx=CONFIG["N_CTX"],  # Context length
+                n_batch=CONFIG["N_BATCH"],  # Batch size
                 n_threads=os.cpu_count(),  # Use all CPU cores
                 n_gpu_layers=20 if torch.cuda.is_available() else 0  # Use GPU if available
             )
@@ -48,8 +48,9 @@ class LLMService:
             # Explicitly set parameters directly in HuggingFaceEndpoint
             self.model = HuggingFaceEndpoint(
                 repo_id=CONFIG["DEFAULT_CLOUD_MODEL"],
-                max_length=256,
-                temperature=0.7,
+                max_length=CONFIG["MAX_TOKENS"],  # Dynamically set max_tokens
+                temperature=CONFIG["TEMPERATURE"],
+                top_p=CONFIG["TOP_P"],
                 huggingfacehub_api_token=os.getenv("HF_API_TOKEN")  # Load token from .env
             )
 
@@ -60,7 +61,7 @@ class LLMService:
         """Stream responses token-by-token."""
         if self.provider == "local":
             # Stream tokens from Llama.cpp model
-            for output in self.model(prompt, max_tokens=256, temperature=0.7, stream=True):
+            for output in self.model(prompt, max_tokens=CONFIG["MAX_TOKENS"], temperature=CONFIG["TEMPERATURE"], stream=True):
                 yield output["choices"][0]["text"]
 
         elif self.provider == "cloud":

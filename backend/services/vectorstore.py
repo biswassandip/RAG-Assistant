@@ -12,8 +12,8 @@ from config import CONFIG
 class HybridVectorStore:
     def __init__(self):
         """Initialize FAISS for dense retrieval and BM25 for sparse retrieval."""
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2")
+        embedding_model = CONFIG.get("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
 
         # Define FAISS index
         dimension = 384  # MiniLM produces 384-dim vectors
@@ -38,9 +38,13 @@ class HybridVectorStore:
 
         # Define configurable chunking strategy
         self.chunker = RecursiveCharacterTextSplitter(
-            chunk_size=int(CONFIG.get("CHUNK_SIZE", 500)),
-            chunk_overlap=int(CONFIG.get("CHUNK_OVERLAP", 100)),
+            chunk_size=CONFIG["CHUNK_SIZE"],
+            chunk_overlap=CONFIG["CHUNK_OVERLAP"],
         )
+
+        # Similarity threshold (tuneable in `.env`)
+        self.SIMILARITY_THRESHOLD = float(CONFIG.get(
+            "SIMILARITY_THRESHOLD", 0.2))  # Default: 0.2
 
     def add_documents(self, texts):
         """Add text documents to FAISS (dense) and BM25 (sparse) retrieval."""
@@ -61,8 +65,9 @@ class HybridVectorStore:
         self.bm25_corpus = [doc.split() for doc in self.text_corpus]
         self.bm25_model = BM25Okapi(self.bm25_corpus)
 
-    def retrieve(self, query, k=3, alpha=0.5):
-        """Retrieve top-k most relevant documents using hybrid search."""
+
+    def retrieve(self, query):
+        """Retrieve top-k documents using FAISS & BM25, with optional adaptive filtering."""
         if not self.text_corpus:
             return ["No documents available in the knowledge base."]
 
@@ -73,32 +78,31 @@ class HybridVectorStore:
         if self.bm25_model:
             bm25_scores = self.bm25_model.get_scores(query.split())
 
-        # FAISS Dense Retrieval
-        dense_results = self.store.similarity_search(
-            query, k=k) if self.text_corpus else []
+        # FAISS Dense Retrieval with Similarity Scores
+        dense_results_with_scores = self.store.similarity_search_with_score(
+            query, k=CONFIG["TOP_K"]) if self.text_corpus else []
+        dense_results = [doc for doc, score in dense_results_with_scores]
+        dense_scores = np.array([score for _, score in dense_results_with_scores])
 
-        # Create an empty FAISS score array with the same shape as BM25
-        dense_scores = np.zeros(num_docs)
+        if not dense_results:
+            return ["No relevant documents found."]
 
-        # Assign scores for only the retrieved FAISS documents
-        for i, doc in enumerate(dense_results):
-            doc_index = self.text_corpus.index(doc.page_content)
-            dense_scores[doc_index] = 1 / (i + 1)  # Higher rank = lower score
+        # Choose Between Fixed & Adaptive Thresholding
+        if CONFIG["ENABLE_ADAPTIVE_THRESHOLD"]:
+            mean_score = np.mean(dense_scores)
+            std_dev = np.std(dense_scores)
+            # Ensures threshold remains reasonable
+            similarity_threshold = max(mean_score - std_dev, 0.1)
+        else:
+            similarity_threshold = CONFIG["SIMILARITY_THRESHOLD"]
 
-        # **Avoid ZeroDivision Error in Normalization**
-        if np.max(bm25_scores) > 0:
-            bm25_scores /= np.max(bm25_scores)
-        if np.max(dense_scores) > 0:
-            dense_scores /= np.max(dense_scores)
+        # Filter Results Based on the Selected Threshold
+        filtered_results = [
+            doc.page_content for doc, score in zip(dense_results, dense_scores) if score > similarity_threshold
+        ]
 
-        # Hybrid Score (Weighted Sum)
-        hybrid_scores = alpha * bm25_scores + (1 - alpha) * dense_scores
+        return filtered_results if filtered_results else ["No relevant documents found."]
 
-        # Get Top-k Documents
-        top_indices = np.argsort(hybrid_scores)[::-1][:k]
-        retrieved_docs = [self.text_corpus[i] for i in top_indices]
-
-        return retrieved_docs if retrieved_docs else ["No relevant documents found."]
 
 
 # Initialize Hybrid Store
