@@ -24,3 +24,12 @@ wget -P https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/ma
 Download Llama 2 7B (Quantized)
 wget -P https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
 
+brew install python@3.11
+python3 --version
+echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+python3 --version
+
+python3 -m venv rag-backend
+source rag-backend/bin/activate
+deactivate
