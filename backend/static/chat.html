@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG AI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .response-container {
+            text-align: left;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .faiss-response {
+            color: #0077b6;
+            font-weight: bold;
+        }
+
+        .llm-response {
+            color: #008000;
+        }
+
+        .loading {
+            font-style: italic;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>RAG AI Chat</h1>
+    <input id="question" type="text" placeholder="Ask me anything..." />
+    <button onclick="askQuestion()">Ask</button>
+
+    <div class="response-container">
+        <h3>Retrieved Documents (FAISS):</h3>
+        <p id="faiss-response" class="faiss-response loading">Waiting for response...</p>
+
+        <h3>Final RAG Response (LLM):</h3>
+        <p id="llm-response" class="llm-response loading">Waiting for response...</p>
+    </div>
+
+    <script>
+        let socket = new WebSocket("ws://127.0.0.1:8000/api/chat");
+
+        function askQuestion() {
+            let question = document.getElementById("question").value;
+            document.getElementById("faiss-response").innerText = "Retrieving from FAISS...";
+            document.getElementById("llm-response").innerText = "Generating response...";
+
+            socket.send(question);
+        }
+
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+
+            if (data.type === "faiss") {
+                document.getElementById("faiss-response").innerText = data.data;
+            } else if (data.type === "llm") {
+                let llmElement = document.getElementById("llm-response");
+                if (llmElement.innerText === "Generating response...") {
+                    llmElement.innerText = "";
+                }
+                llmElement.innerText += data.data;
+            } else if (data.type === "end") {
+                document.getElementById("llm-response").innerText += "\n[Done]";
+            }
+        };
+    </script>
+</body>
+
+</html>
