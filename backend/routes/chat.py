@@ -1,33 +1,72 @@
 from fastapi import APIRouter, WebSocket
+from datetime import datetime
 from services.vectorstore import vector_store
 from services.llm import llm_service
+from routes.upload import uploaded_files_metadata  # Import uploaded file metadata
 
 router = APIRouter()
-
+chat_history = []
 
 @router.websocket("/chat")
 async def chat_stream(websocket: WebSocket):
-    """WebSocket endpoint for streaming Hybrid Search (FAISS + BM25) and LLM responses."""
+    """WebSocket endpoint for chat with history tracking."""
     await websocket.accept()
 
     while True:
-        # Receive question from client
         question = await websocket.receive_text()
-        print(f"Received question: {question}")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Retrieve documents using Hybrid Search (BM25 + FAISS)
-        retrieved_docs = vector_store.retrieve(question)
-        context = "\n".join(retrieved_docs)
+        # Retrieve documents and identify relevant files
+        relevant_files = []
+        results = vector_store.retrieve(question)
+        if results:
+            relevant_files = results["retrieved_files"]
 
-        # Send Hybrid Search results first
-        faiss_response = {"type": "faiss", "data": context}
-        await websocket.send_json(faiss_response)
+        # Improved summarization prompt
+        summary_prompt = f"""
+        You are a highly intelligent assistant. Given the retrieved documents below, generate a concise and relevant summary that directly answers the user's question.
 
-        # Send streaming response from LLM
-        response_text = ""
-        async for token in llm_service.generate_stream(f"Context: {context}\n\nQuestion: {question}\n\nAnswer:"):
-            response_text += token
+        - **Only include relevant facts**
+        - **Avoid generic or repetitive information**
+        - **If multiple documents are retrieved, merge overlapping details**
+        - **Do not include unnecessary introductions or disclaimers**
+        - **Structure the summary logically**
+
+        **User Question:** {question}
+
+        **Retrieved Documents:** 
+        {results}
+
+        **Generate a factual summary:**
+        """
+
+        # Generate a summary using the improved prompt
+        summary_response = llm_service.generate(summary_prompt)
+
+        # Send summarized retrieval response first
+        await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}\n\n📌 Referenced Files:"})
+        # for file in relevant_files:
+        #     await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
+
+        # Stream LLM response
+        final_response = ""
+        async for token in llm_service.generate_stream(f"Context:\n{summary_response}\n\nUser Question:\n{question}\n\nFinal Answer:"):
+            final_response += token
             await websocket.send_json({"type": "llm", "data": token})
 
-        # Signal completion
-        await websocket.send_json({"type": "end", "data": "RAG Response Complete"})
+        # Save chat history
+        chat_history.append({
+            "timestamp": timestamp,
+            "question": question,
+            "retrieved_files": relevant_files,
+            "retrieved_summary": summary_response,
+            "final_answer": final_response
+        })
+
+        await websocket.send_json({"type": "end", "data": "✅ RAG Response Complete"})
+
+
+@router.get("/chat/history")
+def get_chat_history():
+    """Retrieve chat history for the dashboard."""
+    return chat_history

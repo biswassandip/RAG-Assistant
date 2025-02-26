@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Documents</title>
+    <link rel="stylesheet" href="/static/uploads.css"> <!-- Load external CSS -->
+</head>
+<body>
+    <div class="container">
+        <h2>📂 Upload Documents</h2>
+        <p>Select and upload documents to the RAG system.</p>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" multiple />
+            <button onclick="uploadFiles()">📤 Upload</button>
+            <p id="upload-status"></p>
+        </div>
+
+        <h3>📄 Uploaded Files</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>File Name</th>
+                    <th>File Type</th>
+                    <th>Summary</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="uploaded-files"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function uploadFiles() {
+            let files = document.getElementById("fileInput").files;
+            if (files.length === 0) {
+                document.getElementById("upload-status").innerText = "Please select a file.";
+                return;
+            }
+
+            let formData = new FormData();
+            let metadataList = [];
+
+            for (let file of files) {
+                formData.append("files", file);
+
+                let metadata = {
+                    file_name: file.name,
+                    file_type: file.type || "Unknown",
+                    uploaded_date: new Date().toISOString()
+                };
+                metadataList.push(metadata);
+            }
+
+            formData.append("metadata", JSON.stringify(metadataList));
+
+            fetch("http://127.0.0.1:8000/api/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("upload-status").innerText = data.message;
+                loadUploadedFiles();
+            })
+            .catch(error => {
+                document.getElementById("upload-status").innerText = "Upload failed.";
+                console.error(error);
+            });
+        }
+
+
+        function loadUploadedFiles() {
+            fetch("http://127.0.0.1:8000/api/files")
+            .then(response => response.json())
+            .then(files => {
+                let tableBody = document.getElementById("uploaded-files");
+                tableBody.innerHTML = "";
+                files.forEach(file => {
+                    let row = `<tr>
+                        <td>${file.uploaded_date}</td>
+                        <td>${file.file_name}</td>
+                        <td>${file.file_type}</td>
+                        <td>${file.file_about}</td>
+                        <td>${file.status}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error(error));
+        }
+
+        window.onload = function() {
+            loadUploadedFiles();
+        };
+    </script>
+</body>
+</html>

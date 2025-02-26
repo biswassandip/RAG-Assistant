@@ -1,0 +1,101 @@
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 40px;
+    text-align: center;
+}
+
+.container {
+    max-width: 800px;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    margin: auto;
+}
+
+h2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Config Group */
+.config-group {
+    background: #ffffff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.config-group label {
+    font-size: 16px;
+    font-weight: 500;
+    display: block;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.config-group p {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.config-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.config-group input:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+/* Save Button */
+.btn.save-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: #007BFF;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+.btn.save-btn:hover {
+    background: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .config-group input {
+        font-size: 14px;
+    }
+
+    .btn.save-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}

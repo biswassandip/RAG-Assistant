@@ -1,86 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG AI Chat with Document Upload</title>
+    <title>RAG AI Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             text-align: center;
         }
-
-        input {
-            width: 80%;
+        input, button {
             padding: 10px;
             font-size: 16px;
         }
-
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .response-container {
+        .response-container, .upload-container, .config-container {
             text-align: left;
             margin-top: 20px;
-            border: 1px solid #ddd;
             padding: 15px;
+            border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
         }
-
-        .faiss-response {
-            color: #0077b6;
-            font-weight: bold;
-            white-space: pre-wrap;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
-
-        .llm-response {
-            color: #008000;
-            white-space: pre-wrap;
+        table, th, td {
+            border: 1px solid black;
         }
-
-        .loading {
-            font-style: italic;
-            color: #999;
+        th, td {
+            padding: 8px;
+            text-align: left;
         }
-
-        .upload-container {
+        .chat-history {
+            max-height: 300px;
+            overflow-y: scroll;
             margin-top: 20px;
-            padding: 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f3f3f3;
+            padding: 10px;
+            background-color: #fff;
         }
     </style>
 </head>
-
 <body>
-    <h1>RAG AI Chat with Document Upload</h1>
+    <h1>RAG AI Dashboard</h1>
 
     <!-- Upload Section -->
     <div class="upload-container">
-        <h3>Upload Documents (PDF, DOCX, TXT)</h3>
+        <h3>Upload Documents</h3>
         <input type="file" id="fileInput" multiple />
         <button onclick="uploadFiles()">Upload</button>
         <p id="upload-status"></p>
+
+        <h3>Uploaded Files</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>File Name</th>
+                    <th>File Type</th>
+                    <th>Summary</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="uploaded-files"></tbody>
+        </table>
     </div>
 
     <!-- Chat Section -->
-    <input id="question" type="text" placeholder="Ask me anything..." />
-    <button onclick="askQuestion()">Ask</button>
-
     <div class="response-container">
-        <h3>Retrieved Documents (Hybrid Search):</h3>
-        <p id="faiss-response" class="faiss-response loading">Waiting for response...</p>
+        <h3>Ask a Question</h3>
+        <input id="question" type="text" placeholder="Ask me anything..." />
+        <button onclick="askQuestion()">Ask</button>
+
+        <!-- <h3>Retrieved Documents (Hybrid Search):</h3>
+        <p id="faiss-response">Waiting for response...</p> -->
 
         <h3>Final RAG Response (LLM):</h3>
-        <p id="llm-response" class="llm-response loading">Waiting for response...</p>
+        <p id="llm-response">Waiting for response...</p>
+
+        <h3>Chat History</h3>
+        <div class="chat-history" id="chat-history"></div>
+        <button onclick="resetChat()">Reset Chat</button>
     </div>
 
     <script>
@@ -88,28 +92,32 @@
 
         function askQuestion() {
             let question = document.getElementById("question").value;
-            document.getElementById("faiss-response").innerText = "Retrieving documents...";
-            document.getElementById("llm-response").innerText = "Generating response...";
+            // document.getElementById("faiss-response").innerText = "[Retrieving documents...]";
+            document.getElementById("llm-response").innerText = "[Generating response...]";
 
             socket.send(question);
         }
 
-        socket.onmessage = function (event) {
+        socket.onmessage = function(event) {
             let data = JSON.parse(event.data);
-
+            
             if (data.type === "faiss") {
-                document.getElementById("faiss-response").innerText = data.data;
+                document.getElementById("faiss-response").innerText = data.data.message;
+
+                // let retrievedFiles = data.data.retrieved_files.map(file => 
+                //     `<li><strong>${file.file_name}</strong> (${file.file_type}, Uploaded: ${file.uploaded_date})</li>`
+                // ).join("");
+
+                // document.getElementById("faiss-response").innerHTML += `<br><strong>Referenced Docs:</strong><ul>${retrievedFiles}</ul>`;
             } else if (data.type === "llm") {
                 let llmElement = document.getElementById("llm-response");
-                if (llmElement.innerText === "Generating response...") {
-                    llmElement.innerText = "";
-                }
                 llmElement.innerText += data.data;
             } else if (data.type === "end") {
                 document.getElementById("llm-response").innerText += "\n[Done]";
+                loadChatHistory();
             }
         };
-
+        
         function uploadFiles() {
             let files = document.getElementById("fileInput").files;
             if (files.length === 0) {
@@ -126,16 +134,73 @@
                 method: "POST",
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("upload-status").innerText = data.message;
-                })
-                .catch(error => {
-                    document.getElementById("upload-status").innerText = "Upload failed.";
-                    console.error(error);
-                });
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("upload-status").innerText = data.message;
+                loadUploadedFiles();
+            })
+            .catch(error => {
+                document.getElementById("upload-status").innerText = "Upload failed.";
+                console.error(error);
+            });
         }
+
+        function loadUploadedFiles() {
+            fetch("http://127.0.0.1:8000/api/files")
+            .then(response => response.json())
+            .then(files => {
+                let tableBody = document.getElementById("uploaded-files");
+                tableBody.innerHTML = "";
+                files.forEach(file => {
+                    let row = `<tr>
+                        <td>${file.uploaded_date}</td>
+                        <td>${file.file_name}</td>
+                        <td>${file.file_type}</td>
+                        <td>${file.file_about}</td>
+                        <td>${file.status}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error(error));
+        }
+
+        function loadChatHistory() {
+            fetch("http://127.0.0.1:8000/api/chat/history")
+            .then(response => response.json())
+            .then(history => {
+                let historyDiv = document.getElementById("chat-history");
+                historyDiv.innerHTML = "";
+                history.forEach(chat => {
+                    let filesList = chat.retrieved_files.map(file => 
+                        `<li>${file.file_name} (${file.file_type}, Uploaded: ${file.uploaded_date})</li>`
+                    ).join("");
+
+                    let entry = `<p><strong>${chat.timestamp}</strong><br>
+                        <strong>Q:</strong> ${chat.question}<br>
+                        <strong>Summary:</strong> ${chat.retrieved_summary}<br>
+                        <strong>Docs:</strong> <ul>${filesList}</ul>
+                        <strong>Answer:</strong> ${chat.final_answer}</p>`;
+                    historyDiv.innerHTML += entry;
+                });
+            })
+            .catch(error => console.error(error));
+        }
+
+        function resetChat() {
+            fetch("http://127.0.0.1:8000/api/chat/reset", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                window.location.reload();  // Refresh page to reset chat
+            })
+            .catch(error => console.error(error));
+        }
+
+        // Load data on page load
+        window.onload = function() {
+            loadUploadedFiles();
+            loadChatHistory();
+        };
     </script>
 </body>
-
 </html>
