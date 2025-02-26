@@ -62,7 +62,7 @@
 
             formData.append("metadata", JSON.stringify(metadataList));
 
-            fetch("http://127.0.0.1:8000/api/upload", {
+            fetch("/api/upload", {
                 method: "POST",
                 body: formData
             })
@@ -78,7 +78,7 @@
         }
 
         function loadUploadedFiles() {
-            fetch("http://127.0.0.1:8000/api/files")
+            fetch("/api/files")
                 .then(response => response.json())
                 .then(files => {
                     let tableBody = document.getElementById("uploaded-files");
