@@ -7,15 +7,23 @@
     <link rel="stylesheet" href="/static/uploads.css"> <!-- Load external CSS -->
 </head>
 <body>
-    <div class="container">
-        <h2>📂 Upload Documents</h2>
+    <h1>Upload Documents to RAG</h1>
+    <div class="uploads_container">
+        <h3>📂 Upload Documents</h3>
+        <div class="uploads-header">
+            <input type="file" id="fileInput" multiple />
+            <button onclick="uploadFiles()">📤 Upload</button>
+            <p id="upload-status"></p>
+        </div>
+
+        <!-- <h1>📂 Upload Documents</h1>
         <p>Select and upload documents to the RAG system.</p>
 
         <div class="upload-section">
             <input type="file" id="fileInput" multiple />
             <button onclick="uploadFiles()">📤 Upload</button>
             <p id="upload-status"></p>
-        </div>
+        </div> -->
 
         <h3>📄 Uploaded Files</h3>
         <table>
