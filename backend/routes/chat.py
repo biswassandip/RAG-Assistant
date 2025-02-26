@@ -7,6 +7,7 @@ from routes.upload import uploaded_files_metadata  # Import uploaded file metada
 router = APIRouter()
 chat_history = []
 
+
 @router.websocket("/chat")
 async def chat_stream(websocket: WebSocket):
     """WebSocket endpoint for chat with history tracking."""
@@ -19,8 +20,20 @@ async def chat_stream(websocket: WebSocket):
         # Retrieve documents and identify relevant files
         relevant_files = []
         results = vector_store.retrieve(question)
+
         if results:
-            relevant_files = results["retrieved_files"]
+            # Ensure unique files using a set with tuple representation
+            seen_files = set()
+            unique_files = []
+
+            for file in results["retrieved_files"]:
+                file_tuple = (file["file_name"],
+                              file["file_type"], file["uploaded_date"])
+                if file_tuple not in seen_files:
+                    seen_files.add(file_tuple)
+                    unique_files.append(file)
+
+            relevant_files = unique_files  # Assign unique files
 
         # Improved summarization prompt
         summary_prompt = f"""
@@ -45,8 +58,10 @@ async def chat_stream(websocket: WebSocket):
 
         # Send summarized retrieval response first
         await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}\n\n📌 Referenced Files:"})
-        # for file in relevant_files:
-        #     await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
+
+        # Send only unique retrieved files
+        for file in relevant_files:
+            await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
 
         # Stream LLM response
         final_response = ""

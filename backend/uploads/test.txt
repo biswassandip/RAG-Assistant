@@ -1,55 +1,59 @@
-2000:
-Application Developer, Middleware, COM+ (Visual Basic), CORBA (C++, Java), Silverline Technologies, National Utility Services, New Jersey
-2000-2011:
-Mahindra British Telecommunications (Tech Mahindra), Senior Developer > Technical Architect > Platform Architect, PSTN, SDH, WDM, 20CN, 21CN, BT
-2011-2015:
-Sapient (Publicis Sapient), Lead Solutions Architect, Commerce, Real-money gaming
-2015-2020:
-Ladbrokes & Coral Group (Entain), Lead Solution Architect, E2E Sportsbetting and real money gaming, Digital transformation, Merger, Acquisition, Migration
-2020-2024:
-EPAM, Solution Architect, BT/EE, Sales and E-commerce, SA lead for Add and Upgrade Squad, Digital SME for BT/EE
-2024-2025:
-EPAM, Solution Architect and Lead, BSI, Platform feature migration and SSO, Application review, SME
+Role Summary:
+
+As a Principal Architect at the London Stock Exchange Group (LSEG), a global leader driving innovation in the financial markets industry, you will play a pivotal role in supporting our Business Partners and driving the strategic technical direction of our Corporate Service Capabilities. You will provide architectural support and recommend how our technology landscape evolves over the coming years and migrate toward the strategic platforms, especially in the Project Portfolio Management (PPM) space.
+
+In this role, you will be defining strategies and end-to-end solutions on assigned projects working with Solution Architects, detailing the solution in a Solution Architecture Document (SAD) and taking the solution through the governance processes. The role will also provide ongoing architectural guidance to multiple projects through their lifecycle.
+
+Along with Enterprise and Solution architecture, Data architecture knowledge and experience is strongly preferred.
+
+Key Responsibilities:
+
+Work with Business Stakeholders, Product Owners, Business Analysts to understand functional and non-functional requirements
+Own the definitions of target and transitional architectures and the roadmaps to achieve the target architecture.
+Be a great partner with members of Engineering leadership to influence the adoption of Enterprise Architecture frameworks, standards and policies
+Improve relationships with vendors, regulators and industry bodies to seek and adopt industry standard methodologies
+Act as trusted advisor and leader across the wider LSEG Technology.
+Collaborate with other teams to define the end-to-end solution & design covering all involved systems, data, integration, security requirements
+Ensure architecture documentation including SAD, Data Flow Diagram, Integration Architecture diagram etc follow enterprise standards, align with the strategic roadmaps, have good quality documentation
+Review solutions individually with key non-functional partners e.g. Security, Privacy etc
+Present solutions in various forums (like Design Integrity Forum, Architecture Committee, ARB) and with different teams like Security, Privacy.
+Ensure the proposed solution aligns with the business outcome
+Help project team to size & estimate project implementation and identify resources and skills needed for delivery of solution.
+
+Skills & Experience
+
+Detailed knowledge on Enterprise Architecture, Technology Strategy, Cloud and Security.
+Experienced in architecting, delivering and supporting Corporate Services systems like Clarity, Jira, Asana
+Detailed knowledge of operational, delivery management (including experience in a variety of delivery methodologies), business development, strategy and group transformation programmes.
+Onboarding SaaS solutions.
+System integrations at application, data and network architecture domains.
+Appreciation of InfoSec practices as applied in a regulated environment.
+Significant knowledge of at least one programming language
+Hands on experience in one or more architectural domains (business, data, application, technology)
+
+Business and sector expertise:
+
+Significant experience in Enterprise Architecture and Technology Strategy across PPM domain.
+Experience in working with business partners in Corporate Services function e.g Payroll, Risk & Compliance
+High-level understanding/appreciation of processes that impact business operations
+Experience of developing and influencing strategic working relationships with key technology suppliers
+
+Leadership and management experience:
+
+Strong leadership skills in handling individuals and leading hard-working teams.
+Experience of defining strategic goals for functions and systems for measuring goal attainment.
+Experience providing technology leadership in leading complex transformations areas of Corporate Services, operations
+Finding opportunities to partner with external Technology organisations, developing the approach and negotiating terms
+
+Personal skills and capabilities:
+
+Strong verbal and written communication skills, with the ability to communicate technical information to non-technical partners and to listen to identified concerns and adapt accordingly
+Ability to influence across multiple functions (technical and non-technical)
+A continuous desire and willingness to learn and develop your current knowledge and skills as some projects will involve unfamiliar applications
+Flexible in approach, adapting plans and strategies to help handle risks around ambiguity
+Problem solver with a strong intuition for business and proficient in current technological trends and business concepts
+
+LSEG is a leading global financial markets infrastructure and data provider. Our purpose is driving financial stability, empowering economies and enabling customers to create sustainable growth.
 
 
-
-
-
-
-
-
-Oracle Cloud Infrastructure Foundations Associate (1Z0-1085-23).
-AWS Certified Cloud Practitioner 2024.
-M. Sc. AI Dissertation - Understanding Bias in Using Machine Learning for Loan and Credit Guidance.
-M. Sc. AI Dissertation - project with Python, R for analysis datasets using Jupyter Notebook.
-M. Sc. AI, University of Essex completed.
-Discovery -  Client BSI, Knowledge Application Review.
-Discovery (Review) -  Client BSI, SEO.
-Discovery (Review) -  Client BSI, Platform Remediation.
-Discovery -  Client BSI, Knowledge SSO.
-Proposal - Client BSI, BSOL/Knowledge features migration.
-Proposal - Client BSI, Knowledge SSO.
-Proposal - Client BSI, Knowledge SSR.
-Proposal (Review) - Client BSI, Knowledge SSR.
-SSO POC and analysis - https://github.com/biswassandip/sso-auth0.
-Review, discuss, update for the creation of: Ways of working, processes for development and release for BSI.
-Review, discuss, update for the BSI Testing Strategy.
-Interviewing for BA, FE, BE, QA and leads for the project team building for Knowledge, Remediation, SEO and SSO streams.
-Solutions Lead and Built development team comprising of PO, BA, 2 FE, 2 BE and 2 dev leads, 2 QA.
-Cross SA activities for the BSI Streams.
-SA/SME/Technical Lead activities for BSI Streams.
-Governance, Delivery, Business support, Core consulting and Product outlining and support.
-Support with Sportsbetting/Wagering artifacts (product, architecture) knowledge for HKJC proposal.
-
-
-1. key points why you think I am ready for promotion. Please reference to facts and my real experience that can prove I am already perform the duties of a person who has a target title 
-2. Please mention my motivation for promotion and plans/goals for future
-
-
-
-Strong Enterprise Architect (TOGAF and TMF processes), ideally understands Telco processes (quote to cash) for consumer, enterprise and wholesale customers. Understands CPQ concepts and telco product ordering/provisioning concepts. Good client-facing skills, can run workshops, articulate requirements, can lead other BA's to shape product delivery of requirements. Initial client will be Gamma Telecom based in city of London. You will be working with a high-performing Proserve team (EPAM) a mix of Project managers, BA's, Architects and CSG's development team to shape the roadmap of Gamma Telecom's transformation to a new CPQ solution (Q2O).
-
-
-As an experienced Solution Architect, I have successfully led cross-functional teams—including Product Owners, Business Analysts, QA, Tech Leads, and Architects—to deliver complex telecom solutions aligned with business roadmaps. My expertise spans both OSS (Planning, Activation, Routing, and Configuration) and BSS (Sales, Order, and Billing), having worked extensively with British Telecom (BT/EE) to enable seamless Add and Upgrade journeys for mobile products. With a strong foundation in telco processes, CPQ, and end-to-end order management, I am eager to transition into an Enterprise Architect role, leveraging my deep technical and strategic experience to drive large-scale transformation initiatives. My ability to articulate requirements, lead workshops, and guide teams towards effective product delivery makes me well-suited to shaping the roadmap for Gamma Telecom's Q2O transformation. Additionally, my familiarity with TOGAF and TMF processes positions me to contribute effectively to enterprise-wide architecture decisions while collaborating with high-performing teams to drive business success.
-
-As a Solution Architect I have led cross-functional teams (PO, BA, Tech Leads, etc.) for deliveries aligned with business roadmaps. Within telecom my expertise spans both OSS (Planning, Activation, Routing, and Configuration) and BSS (Sales, Order, and Billing) for British Telecom and EE. With a good foundation in telco processes, CPQ, and end-to-end order management, I am eager to transition into an Enterprise Architect role. Additionally, my familiarity with TOGAF and TMF processes positions me to contribute effectively to architecture decisions while collaborating with the teams working towards the business roadmap.
+Experienced IT professional with 25+ years in Solutions Architecture, Product Rollouts, and Technology Development across Gaming & Wagering (real-money, sports betting, horseracing), Telecom, and E-commerce. Skilled in driving digital transformation through innovative solutions, emerging technologies, and scalable strategies aligned with business objectives.
