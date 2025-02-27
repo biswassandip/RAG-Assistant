@@ -95,7 +95,7 @@ main {
 
 .input-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     /* 3 columns */
     gap: 10px;
     /* Spacing between items */

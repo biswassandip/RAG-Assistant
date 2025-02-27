@@ -12,80 +12,107 @@
         <form id="config-form">
             <div class="input-container">
                 <!-- LLM Provider -->
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="llm_provider">LLM Provider</label>
                     <small>Allowed values: "local" or "cloud"</small>
                     <input type="text" id="llm-provider" maxlength="20" class="size-fixed-string">
-                </div>
+                </div> -->
 
                 <!-- LLM Model -->
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="llm_model">LLM Model</label>
                     <small>Examples: "llama2", "mistral"</small>
                     <input type="text" id="llm-model" maxlength="20" class="size-fixed-string">
-                </div>
+                </div> -->
 
                 <!-- Local LLM Model -->
                 <div class="form-group">
                     <label for="local_llm_model">Local LLM Model</label>
-                    <small>Required when LLM Provider is "local".</small>
+                    <small>Values: "tinyllama", "mistral7b", "llama2"</small>
                     <input type="text" id="local-llm-model" maxlength="20" class="size-fixed-string">
                 </div>
 
                 <!-- Local LLM Model Path -->
                 <div class="form-group">
                     <label for="local_llm_model_path">Local LLM Model Path</label>
-                    <small>Path where the model has been downloaded.</small>
+                    <small>
+                        These are the models downloaded in the local directory /models.
+                        <br/>Values:
+                        <br />models/llama-2-7b-chat.Q4_K_M.gguf (to be used with Local LLM Model "llama2")
+                        <br />models/llama-2-7b.Q8_0.gguf (to be used with Local LLM Model "llama2")
+                        <br />models/mistral-7b-instruct-v0.1.Q4_K_M.gguf (to be used with Local LLM Model "mistral7b")
+                        <br />models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf (to be used with Local LLM Model "tinyllama")
+                    </small>
                     <input type="text" id="model-path" maxlength="100" class="size-fixed-string">
                 </div>
 
                 <!-- Cloud LLM Model -->
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="cloud_llm_model">Cloud LLM Model</label>
                     <small>Required when LLM Provider is "cloud".</small>
                     <input type="text" id="cloud-llm-model" maxlength="50" class="size-fixed-string">
-                </div>
+                </div> -->
 
                 <!-- API Token -->
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="api_token">API Token</label>
                     <small>Required when LLM Provider is "cloud".</small>
                     <input type="text" id="api-token" maxlength="100" class="size-fixed-string">
-                </div>
+                </div> -->
 
                 <!-- Numeric Fields -->
                 <div class="form-group">
                     <label for="chunk_size">Chunk Size</label>
-                    <small>Controls document split size.</small>
+                    <small>
+                        CHUNK_SIZE controls the size of document splits.
+                        <br/>A smaller chunk size (e.g., 300) improves precision but may reduce recall.
+                        <br />A larger chunk size (e.g., 1000) retains more context but may return broader results.                        
+                    </small>
                     <input type="number" id="chunk-size" maxlength="6" class="size-fixed-number">
                 </div>
 
                 <div class="form-group">
                     <label for="chunk_overlap">Chunk Overlap</label>
-                    <small>Ensures overlapping words between chunks.</small>
+                    <small>
+                        CHUNK_OVERLAP ensures overlapping words between chunks to retain context.
+                        <br/>If set too high, it increases redundancy; too low may cause loss of information.                        
+                    </small>
                     <input type="number" id="chunk-overlap" maxlength="6" class="size-fixed-number">
                 </div>
 
                 <div class="form-group">
-                    <label for="alpha">Alpha</label>
-                    <small>Controls BM25 vs FAISS balance.</small>
+                    <label for="alpha">ALPHA</label>
+                    <small>
+                        ALPHA controls the weight balance between BM25 (keyword search) and FAISS (vector search).
+                        <br/>ALPHA = 1.0 → Full BM25 (text-based keyword matching)
+                        <br />ALPHA = 0.0 → Full FAISS (semantic search)
+                        <br />ALPHA = 0.5 → Equal mix of BM25 & FAISS (balanced hybrid search)                        
+                    </small>
                     <input type="number" id="alpha" step="0.1" maxlength="6" class="size-fixed-number">
                 </div>
 
                 <div class="form-group">
                     <label for="top_k">TOP_K</label>
-                    <small>Controls document retrieval before LLM processing.</small>
+                    <small>
+                        TOP_K controls how many documents to retrieve before LLM processing.
+                        <br/>Lower values (e.g., 3) improve response time but may reduce accuracy.
+                        <br />Higher values (e.g., 10) provide broader context but increase processing time.                        
+                    </small>
                     <input type="number" id="top-k" maxlength="6" class="size-fixed-number">
                 </div>
 
                 <div class="form-group">
                     <label for="max_tokens">MAX_TOKENS</label>
-                    <small>Controls response length.</small>
+                    <small>
+                        MAX_TOKENS controls how long the generated response can be.
+                        <br/>A higher value (e.g., 512) ensures complete answers but increases response time.
+                        <br />A lower value (e.g., 256) speeds up responses but may cause cut-off sentences.                        
+                    </small>
                     <input type="number" id="max-tokens" maxlength="6" class="size-fixed-number">
                 </div>
 
                 <div class="form-group">
-                    <label for="temperatue">MAX_TOKENS</label>
+                    <label for="temperatue">TEMPERATURE</label>
                     <small>
                         TEMPERATURE controls randomness in the response.
                         <br />TEMPERATURE = 0.0 → Always gives the same response (good for factual answers).
@@ -127,7 +154,13 @@
                 <!-- Embedding Model -->
                 <div class="form-group">
                     <label for="embedding_model">Embedding Model (FAISS)</label>
-                    <small>FAISS embedding model options.</small>
+                    <small>
+                        FAISS Embedding Model for Better Vector Search
+                        <br/>Values:
+                        <br />sentence-transformers/all-MiniLM-L6-v2 (Fast, Medium Accuracy)
+                        <br />sentence-transformers/multi-qa-MiniLM-L6-cos-v1 (Optimized for Q&A Search)
+                        <br />intfloat/multilingual-e5-base (Best for diverse queries)                        
+                    </small>
                     <input type="text" id="embedding-model" maxlength="100" class="size-fixed-string">
                 </div>
 
@@ -142,9 +175,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="similarity_threshold">Similarity threshold (FAISS)</label>
+                    <label for="similarity_threshold">SIMILARITY_THRESHOLD (FAISS)</label>
                     <small>
-                        Similarity threshold for FAISS retrieval
+                        SIMILARITY_THRESHOLD for FAISS retrieval
                         <br />A lower value (e.g., 0.1) allows more results but may include irrelevant ones.
                         <br />A higher value (e.g., 0.5) ensures only highly relevant results are returned.
                         <br />Only used if ENABLE_ADAPTIVE_THRESHOLD=0.
