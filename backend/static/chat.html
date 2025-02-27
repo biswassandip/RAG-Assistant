@@ -5,32 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAG AI Chat</title>
-    <link rel="stylesheet" href="/static/main.css">
 </head>
 
 <body>
-    <div class="chat-container">
-        <h2>💬 RAG AI Chat</h2>
+    <div class="container">
 
         <!-- Chat History -->
         <div class="chat-history-section">
-            <h3>Chat History</h3>
             <div class="chat-history" id="chat-history"></div>
         </div>
 
         <!-- Chat Input Section -->
         <div class="response-container">
-            <h3>Ask a Question</h3>
+            <h3>Question</h3>
             <input id="question" type="text" class="size-question" placeholder="Ask me anything..." />
-            <p id="llm-response">Waiting for response...</p>
+            <p id="llm-response">...and you will see the response here...</p>
         </div>
 
         <!-- Floating Buttons -->
-        <button id="ask-button" class="floating-button floating-ask">Ask</button>
-        <!-- <button id="reset-button" class="floating-button floating-reset">Reset</button> -->
-
-        <!-- <button id="ask-button" class="floating-ask">Ask</button>
-        <button id="reset-button" class="floating-reset">Reset Chat</button> -->
+        <button id="ask-button" class="floating-button floating-cta">Ask</button>
     </div>
 
     <script>
@@ -39,8 +32,6 @@
         function initWebSocket() {
             let host = window.location.host;
             socket = new WebSocket(`ws://${ host }/api/chat`);
-            //socket = new WebSocket("ws://127.0.0.1:8000/api/chat");
-            //socket = new WebSocket("ws://127.0.0.1:8000/api/chat");
 
             socket.onopen = function () {
                 console.log("Connected to WebSocket server.");

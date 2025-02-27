@@ -5,25 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Documents</title>
-    <link rel="stylesheet" href="/static/main.css"> <!-- Ensure consistent styling -->
 </head>
 
 <body>
     <div class="container">
-        <h2>📂 Upload Documents to RAG</h2>
-
         <!-- Upload Section -->
         <div class="uploads_container">
-            <h3>📤 Upload Files</h3>
+            <h3>Upload Files</h3>
             <div class="uploads-header">
-                <input type="file" id="fileInput" multiple />
-                <button id="upload-button"  class="floating-button floating-upload">📤 Upload</button>
+                <input type="file" id="fileInput" multiple/>
                 <p id="upload-status"></p>
             </div>
         </div>
+        <button id="upload-button" class="floating-button floating-cta">Upload</button>
 
         <!-- Uploaded Files Table -->
-        <h3>📄 Uploaded Files</h3>
+        <h3>Uploaded Files</h3>
         <table>
             <thead>
                 <tr>

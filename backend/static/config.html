@@ -5,165 +5,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Config</title>
-    <link rel="stylesheet" href="/static/main.css">
 </head>
 
 <body>
     <div class="container">
-        <h2>Configuration Settings</h2>
         <form id="config-form">
+            <div class="input-container">
+                <!-- LLM Provider -->
+                <div class="form-group">
+                    <label for="llm_provider">LLM Provider</label>
+                    <small>Allowed values: "local" or "cloud"</small>
+                    <input type="text" id="llm-provider" maxlength="20" class="size-fixed-string">
+                </div>
 
-            <!-- LLM Provider -->
-            <div class="form-group">
-                <label for="llm_provider">LLM Provider</label>
-                <small>Allowed values: "local" or "cloud"</small>
-                <input type="text" id="llm-provider" maxlength="20" class="size-20">
-            </div>
+                <!-- LLM Model -->
+                <div class="form-group">
+                    <label for="llm_model">LLM Model</label>
+                    <small>Examples: "llama2", "mistral"</small>
+                    <input type="text" id="llm-model" maxlength="20" class="size-fixed-string">
+                </div>
 
-            <!-- LLM Model -->
-            <div class="form-group">
-                <label for="llm_model">LLM Model</label>
-                <small>Examples: "llama2", "mistral"</small>
-                <input type="text" id="llm-model" maxlength="20" class="size-20">
-            </div>
+                <!-- Local LLM Model -->
+                <div class="form-group">
+                    <label for="local_llm_model">Local LLM Model</label>
+                    <small>Required when LLM Provider is "local".</small>
+                    <input type="text" id="local-llm-model" maxlength="20" class="size-fixed-string">
+                </div>
 
-            <!-- Local LLM Model -->
-            <div class="form-group">
-                <label for="local_llm_model">Local LLM Model</label>
-                <small>Required when LLM Provider is "local".</small>
-                <input type="text" id="local-llm-model" maxlength="20" class="size-20">
-            </div>
+                <!-- Local LLM Model Path -->
+                <div class="form-group">
+                    <label for="local_llm_model_path">Local LLM Model Path</label>
+                    <small>Path where the model has been downloaded.</small>
+                    <input type="text" id="model-path" maxlength="100" class="size-fixed-string">
+                </div>
 
-            <!-- Local LLM Model Path -->
-            <div class="form-group">
-                <label for="local_llm_model_path">Local LLM Model Path</label>
-                <small>Path where the model has been downloaded.</small>
-                <input type="text" id="model-path" maxlength="100" class="size-100">
-            </div>
+                <!-- Cloud LLM Model -->
+                <div class="form-group">
+                    <label for="cloud_llm_model">Cloud LLM Model</label>
+                    <small>Required when LLM Provider is "cloud".</small>
+                    <input type="text" id="cloud-llm-model" maxlength="50" class="size-fixed-string">
+                </div>
 
-            <!-- Cloud LLM Model -->
-            <div class="form-group">
-                <label for="cloud_llm_model">Cloud LLM Model</label>
-                <small>Required when LLM Provider is "cloud".</small>
-                <input type="text" id="cloud-llm-model" maxlength="50" class="size-50">
-            </div>
+                <!-- API Token -->
+                <div class="form-group">
+                    <label for="api_token">API Token</label>
+                    <small>Required when LLM Provider is "cloud".</small>
+                    <input type="text" id="api-token" maxlength="100" class="size-fixed-string">
+                </div>
 
-            <!-- API Token -->
-            <div class="form-group">
-                <label for="api_token">API Token</label>
-                <small>Required when LLM Provider is "cloud".</small>
-                <input type="text" id="api-token" maxlength="100" class="size-100">
-            </div>
+                <!-- Numeric Fields -->
+                <div class="form-group">
+                    <label for="chunk_size">Chunk Size</label>
+                    <small>Controls document split size.</small>
+                    <input type="number" id="chunk-size" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <!-- Numeric Fields -->
-            <div class="form-group">
-                <label for="chunk_size">Chunk Size</label>
-                <small>Controls document split size.</small>
-                <input type="number" id="chunk-size" maxlength="6" class="size-6">
-            </div>
+                <div class="form-group">
+                    <label for="chunk_overlap">Chunk Overlap</label>
+                    <small>Ensures overlapping words between chunks.</small>
+                    <input type="number" id="chunk-overlap" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <div class="form-group">
-                <label for="chunk_overlap">Chunk Overlap</label>
-                <small>Ensures overlapping words between chunks.</small>
-                <input type="number" id="chunk-overlap" maxlength="6" class="size-6">
-            </div>
+                <div class="form-group">
+                    <label for="alpha">Alpha</label>
+                    <small>Controls BM25 vs FAISS balance.</small>
+                    <input type="number" id="alpha" step="0.1" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <div class="form-group">
-                <label for="alpha">Alpha</label>
-                <small>Controls BM25 vs FAISS balance.</small>
-                <input type="number" id="alpha" step="0.1" maxlength="6" class="size-6">
-            </div>
+                <div class="form-group">
+                    <label for="top_k">TOP_K</label>
+                    <small>Controls document retrieval before LLM processing.</small>
+                    <input type="number" id="top-k" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <div class="form-group">
-                <label for="top_k">TOP_K</label>
-                <small>Controls document retrieval before LLM processing.</small>
-                <input type="number" id="top-k" maxlength="6" class="size-6">
-            </div>
+                <div class="form-group">
+                    <label for="max_tokens">MAX_TOKENS</label>
+                    <small>Controls response length.</small>
+                    <input type="number" id="max-tokens" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <div class="form-group">
-                <label for="max_tokens">MAX_TOKENS</label>
-                <small>Controls response length.</small>
-                <input type="number" id="max-tokens" maxlength="6" class="size-6">
-            </div>
+                <div class="form-group">
+                    <label for="temperatue">MAX_TOKENS</label>
+                    <small>
+                        TEMPERATURE controls randomness in the response.
+                        <br />TEMPERATURE = 0.0 → Always gives the same response (good for factual answers).
+                        <br />TEMPERATURE = 1.0 → More creative and varied responses (good for storytelling).
+                        <br />TEMPERATURE = 0.7 → A balanced mix of consistency & creativity (recommended).
+                    </small>
+                    <input type="number" id="temperature" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="top_p">TOP_P</label>
+                    <small>
+                        TOP_P controls how much of the probability mass is considered.
+                        <br />A high value (e.g., 0.95) allows more diverse responses.
+                        <br />A low value (e.g., 0.5) restricts output to highly likely words.
+                    </small>
+                    <input type="number" id="top-p" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="n_ctx">N_CTX</label>
+                    <small>
+                        N_CTX (Context Window) controls how much of the conversation history is considered.
+                        <br />A low value (e.g., 512) considers less past information but is faster.
+                        <br />A high value (e.g., 2048) ensures better contextual understanding but is slower.
+                    </small>
+                    <input type="number" id="n-ctx" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="n_batch">N_BATCH</label>
+                    <small>
+                        N_BATCH controls how many tokens are processed in parallel.
+                        <br />A higher value (e.g., 64) improves performance but may use more memory.
+                    </small>
+                    <input type="number" id="n-batch" maxlength="6" class="size-fixed-number">
+                </div>
 
-            <div class="form-group">
-                <label for="temperatue">MAX_TOKENS</label>
-                <small>
-                    TEMPERATURE controls randomness in the response.
-                    <br />TEMPERATURE = 0.0 → Always gives the same response (good for factual answers).
-                    <br />TEMPERATURE = 1.0 → More creative and varied responses (good for storytelling).
-                    <br />TEMPERATURE = 0.7 → A balanced mix of consistency & creativity (recommended).
-                </small>
-                <input type="number" id="temperature" maxlength="6" class="size-6">
-            </div>
-            
-            <div class="form-group">
-                <label for="top_p">TOP_P</label>
-                <small>
-                    TOP_P controls how much of the probability mass is considered.
-                    <br />A high value (e.g., 0.95) allows more diverse responses.
-                    <br />A low value (e.g., 0.5) restricts output to highly likely words.
-                </small>
-                <input type="number" id="top-p" maxlength="6" class="size-6">
-            </div>
-            
-            <div class="form-group">
-                <label for="n_ctx">N_CTX</label>
-                <small>
-                    N_CTX (Context Window) controls how much of the conversation history is considered.
-                    <br />A low value (e.g., 512) considers less past information but is faster.
-                    <br />A high value (e.g., 2048) ensures better contextual understanding but is slower.
-                </small>
-                <input type="number" id="n-ctx" maxlength="6" class="size-6">
-            </div>
-            
-            <div class="form-group">
-                <label for="n_batch">N_BATCH</label>
-                <small>
-                    N_BATCH controls how many tokens are processed in parallel.
-                    <br />A higher value (e.g., 64) improves performance but may use more memory.
-                </small>
-                <input type="number" id="n-batch" maxlength="6" class="size-6">
-            </div>
+                <!-- Embedding Model -->
+                <div class="form-group">
+                    <label for="embedding_model">Embedding Model (FAISS)</label>
+                    <small>FAISS embedding model options.</small>
+                    <input type="text" id="embedding-model" maxlength="100" class="size-fixed-string">
+                </div>
 
-            <!-- Embedding Model -->
-            <div class="form-group">
-                <label for="embedding_model">Embedding Model (FAISS)</label>
-                <small>FAISS embedding model options.</small>
-                <input type="text" id="embedding-model" maxlength="100" class="size-100">
+                <div class="form-group">
+                    <label for="enable_adaptive_threshold">ENABLE_ADAPTIVE_THRESHOLD (FAISS)</label>
+                    <small>
+                        FAISS Adaptive Similarity Thresholding
+                        <br />If ENABLE_ADAPTIVE_THRESHOLD=1, the threshold is calculated dynamically.
+                        <br />If ENABLE_ADAPTIVE_THRESHOLD=0, a fixed threshold is used.
+                    </small>
+                    <input type="number" id="enable-adaptive-threshold" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="similarity_threshold">Similarity threshold (FAISS)</label>
+                    <small>
+                        Similarity threshold for FAISS retrieval
+                        <br />A lower value (e.g., 0.1) allows more results but may include irrelevant ones.
+                        <br />A higher value (e.g., 0.5) ensures only highly relevant results are returned.
+                        <br />Only used if ENABLE_ADAPTIVE_THRESHOLD=0.
+                    </small>
+                    <input type="number" id="similarity-threshold" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="default_response_length">Default response length</label>
+                    <small>Default response length (short, medium, long).</small>
+                    <input type="text" id="default-response-length" maxlength="100" class="size-fixed-string">
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="enable_adaptive_threshold">ENABLE_ADAPTIVE_THRESHOLD (FAISS)</label>
-                <small>
-                    FAISS Adaptive Similarity Thresholding
-                    <br />If ENABLE_ADAPTIVE_THRESHOLD=1, the threshold is calculated dynamically.
-                    <br />If ENABLE_ADAPTIVE_THRESHOLD=0, a fixed threshold is used.
-                </small>
-                <input type="number" id="enable-adaptive-threshold" maxlength="6" class="size-6">
-            </div>
-            
-            <div class="form-group">
-                <label for="similarity_threshold">Similarity threshold (FAISS)</label>
-                <small>
-                    Similarity threshold for FAISS retrieval
-                    <br />A lower value (e.g., 0.1) allows more results but may include irrelevant ones.
-                    <br />A higher value (e.g., 0.5) ensures only highly relevant results are returned.
-                    <br />Only used if ENABLE_ADAPTIVE_THRESHOLD=0.
-                </small>
-                <input type="number" id="similarity-threshold" maxlength="6" class="size-6">
-            </div>
-            
-            <div class="form-group">
-                <label for="default_response_length">Default response length</label>
-                <small>Default response length (short, medium, long).</small>
-                <input type="text" id="default-response-length" maxlength="100" class="size-20">
-            </div>
-
             <!-- Floating Save Button -->
-            <!-- <button class="floating-save" id="save-button" onclick="saveConfigs(event)">💾 Save</button> -->
-            <button id="save-button" class="floating-button floating-save" onclick="saveConfigs(event)">💾 Save</button>
-            <!-- <button type="submit" class="floating-save">Save</button> -->
+            <button id="save-button" class="floating-button floating-cta" onclick="saveConfigs(event)">Save</button>
         </form>
     </div>
 
