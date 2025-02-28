@@ -76,7 +76,7 @@
                     initWebSocket();
                     loadChatHistory();
                     document.getElementById("ask-button").addEventListener("click", askQuestion);
-                    document.getElementById("reset-button").addEventListener("click", resetChat);
+                    //document.getElementById("reset-button").addEventListener("click", resetChat);
                 }
             }
 
@@ -94,7 +94,7 @@
             });
 
             // Load default page
-            loadPage("/static/config.html", "config");
+            loadPage("/static/chat.html", "chat");
         });
     </script>
 </head>

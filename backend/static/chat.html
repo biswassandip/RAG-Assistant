@@ -9,32 +9,45 @@
 
 <body>
     <div class="container">
-
+    
         <!-- Chat History -->
         <div class="chat-history-section">
             <div class="chat-history" id="chat-history"></div>
         </div>
-
+    
         <!-- Chat Input Section -->
         <div class="response-container">
             <h3>Question</h3>
             <input id="question" type="text" class="size-question" placeholder="Ask me anything..." />
             <p id="llm-response">...and you will see the response here...</p>
         </div>
-
+    
         <!-- Floating Buttons -->
         <button id="ask-button" class="floating-button floating-cta">Ask</button>
     </div>
 
     <script>
-        let socket;
+        let socket = null;
+        let clientId = sessionStorage.getItem("client_id");
+
+        if (!clientId) {
+            clientId = `client_${ Math.random().toString(36).substr(2, 9) }`;
+            sessionStorage.setItem("client_id", clientId);
+        }
 
         function initWebSocket() {
+            if (socket !== null && socket.readyState === WebSocket.OPEN) {
+                console.log(4);
+                console.warn("WebSocket connection already open. Skipping re-initialization.");
+                return;
+            }
+
             let host = window.location.host;
             socket = new WebSocket(`ws://${ host }/api/chat`);
 
             socket.onopen = function () {
                 console.log("Connected to WebSocket server.");
+                socket.send(JSON.stringify({ client_id: clientId }));
             };
 
             socket.onmessage = function (event) {
@@ -59,7 +72,7 @@
         }
 
         function askQuestion() {
-            let question = document.getElementById("question").value;
+            let question = document.getElementById("question").value.trim();
             if (!question.trim()) return;
 
             document.getElementById("llm-response").innerText = "[Generating response...]";
@@ -67,7 +80,7 @@
         }
 
         function loadChatHistory() {
-            fetch("/api/chat/history")
+            fetch(`/api/chat/history?client_id=${ clientId }`)
                 .then(response => response.json())
                 .then(history => {
                     let historyDiv = document.getElementById("chat-history");
@@ -92,15 +105,10 @@
                 .catch(error => console.error("Error loading chat history:", error));
         }
 
-        function resetChat() {
-            fetch("/api/chat/reset", { method: "POST" })
-                .then(response => response.json())
-                .then(() => {
-                    document.getElementById("chat-history").innerHTML = "";
-                    document.getElementById("llm-response").innerText = "Waiting for response...";
-                })
-                .catch(error => console.error("Error resetting chat:", error));
-        }
+        // Ensure WebSocket is only initialized once
+//        window.onload = function () {
+//            initWebSocket();
+//        };
     </script>
 </body>
 
