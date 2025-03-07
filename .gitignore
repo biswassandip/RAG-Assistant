@@ -173,3 +173,4 @@ cython_debug/
 /backend/rag-backend
 /backend/models/*.*
 /backend/uploads/*.*
+/backend/config.db
