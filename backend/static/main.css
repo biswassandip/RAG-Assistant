@@ -13,7 +13,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 15px;
+    padding: 10px 10px;
     background: #FFFDF2;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     position: fixed;

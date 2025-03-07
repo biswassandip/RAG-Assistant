@@ -174,3 +174,5 @@ cython_debug/
 /backend/models/*.*
 /backend/uploads/*.*
 /backend/config.db
+/backend/.DS_Store
+.DS_Store

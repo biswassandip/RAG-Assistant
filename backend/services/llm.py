@@ -2,13 +2,27 @@ import os
 import torch
 from database import SessionLocal, Configuration
 from llama_cpp import Llama  # For local LLMs (Llama.cpp)
-from langchain_huggingface import HuggingFaceEndpoint  # For cloud LLMs
 import asyncio
+from fastapi.responses import StreamingResponse
 
-# Function to get config from database
+
+# constants used for the config
+LOCAL_LLM_MODEL = "local-llm-model"
+MODEL_PATH = "model-path"
+CONTEXT_WINDOW = "n-ctx"
+MAX_TOKENS = "max-tokens"
+TEMPERATURE = "temperature"
+TOP_P = "top-p"
+REPEAT_PENALTY = "repeat-penalty"
+N_BATCH = "n-batch"
+TINYLLAMA = "tinyllama"
+LLAMA2 = "llama2"
+MISTRAL = "mistral"
 
 
+# fetches config values from the db
 def get_config_value(key):
+    """Fetches the latest configuration value from the database."""
     db = SessionLocal()
     config_entry = db.query(Configuration).filter(
         Configuration.key == key).first()
@@ -16,87 +30,117 @@ def get_config_value(key):
     return config_entry.value if config_entry else None
 
 
+# main llm service
 class LLMService:
     def __init__(self):
-        """Dynamically select LLM based on configuration from the database."""
-        self.provider = get_config_value("llm-provider")
+        """Initialize LLMService without storing static config values."""
+        self.model = None  # Model is loaded dynamically
+        self.config = None  # Config is stored in cache
 
-        if self.provider == "local":
-            selected_model = get_config_value("local-llm-model")
-            model_path = get_config_value("model-path")
+    def get_model(self):
+        """Dynamically fetch the latest model based on updated config."""
 
-            if not model_path or not os.path.exists(model_path):
-                raise FileNotFoundError(
-                    f"LLM Model file not found at {model_path}. Please check your database configuration.")
+        # Fetch dynamic config
+        config = {
+            CONTEXT_WINDOW: int(get_config_value(CONTEXT_WINDOW)),
+            MAX_TOKENS: int(get_config_value(MAX_TOKENS)),
+            TEMPERATURE: float(get_config_value(TEMPERATURE)),
+            TOP_P: float(get_config_value(TOP_P)),
+            REPEAT_PENALTY: 1.1,
+            MODEL_PATH: get_config_value(MODEL_PATH),
+            LOCAL_LLM_MODEL: get_config_value(LOCAL_LLM_MODEL),
+            N_BATCH: int(get_config_value(N_BATCH)),
+        }
 
-            print(f"🟢 Streaming {selected_model} from {model_path}...")
-
-            self.model = Llama(
-                model_path=model_path,
-                n_ctx=int(get_config_value("n-ctx")),  # Context length
-                n_batch=int(get_config_value("n-batch")),  # Batch size
-                n_threads=os.cpu_count(),  # Use all CPU cores
-                max_length=get_config_value("max-tokens"),
-                n_gpu_layers=20 if torch.cuda.is_available() else 0  # Use GPU if available
+        if not config[MODEL_PATH] or not os.path.exists(config[MODEL_PATH]):
+            raise FileNotFoundError(
+                f"LLM Model file not found at {config[MODEL_PATH]}. Please check your database configuration."
             )
-            self.context_window = int(get_config_value("n-ctx"))  # Set context window
 
-        elif self.provider == "cloud":
-            # Explicitly set parameters directly in HuggingFaceEndpoint
-            self.model = HuggingFaceEndpoint(
-                repo_id=get_config_value("cloud-llm-model"),
-                max_length=int(get_config_value("max-tokens")),
-                temperature=float(get_config_value("temperature")),
-                top_p=float(get_config_value("top-p")),
-                huggingfacehub_api_token=get_config_value("api-token")
-            )
-            self.context_window = 2048  # Default for cloud models
+        # model specific tweaks to handle combinations
+        # TO-DO: make it more dynamic
+        if TINYLLAMA in config[LOCAL_LLM_MODEL].lower():
+            config.update(
+                {TEMPERATURE: 0.7, TOP_P: 0.9, REPEAT_PENALTY: 1.2})
+        elif LLAMA2 in config[LOCAL_LLM_MODEL].lower():
+            config.update(
+                {TEMPERATURE: 0.5, TOP_P: 0.8, REPEAT_PENALTY: 1.1})
+        elif MISTRAL in config[LOCAL_LLM_MODEL].lower():
+            config.update(
+                {TEMPERATURE: 0.7, TOP_P: 0.95, REPEAT_PENALTY: 1.05})
 
-        else:
-            raise ValueError("Invalid LLM_PROVIDER. Use 'cloud' or 'local'.")
+        # if the config has not changed then return the model and the config
+        if self.config == config:
+            return
 
-    def truncate_prompt(self, prompt):
+        # load the model only if there is a change in the config.
+        # assuming this will be reloaded other wise it would have been handled above
+        print("🔄 Reloading LLM model due to configuration change...")
+        return Llama(
+            model_path=config[MODEL_PATH],
+            n_ctx=config[CONTEXT_WINDOW],
+            n_batch=config[N_BATCH],
+            n_threads=os.cpu_count(),
+            n_gpu_layers=20 if torch.cuda.is_available() else 0
+        ), config[CONTEXT_WINDOW], config[MAX_TOKENS], config[TEMPERATURE], config[TOP_P], config[REPEAT_PENALTY]
+
+    def truncate_prompt(self, prompt, context_window):
         """Ensure the prompt does not exceed the model's context window."""
-        prompt_tokens = self.model.tokenize(
-            prompt.encode("utf-8"))  # Convert to token list
-        max_tokens = self.context_window - 50  # Leave space for response
+        model, *_ = self.get_model()
+        prompt_tokens = model.tokenize(prompt.encode("utf-8"))
+        max_tokens = context_window - 100  # Leave space for response
 
         if len(prompt_tokens) > max_tokens:
             print(
-                f"⚠️ Truncating prompt: {len(prompt_tokens)} → {max_tokens} tokens")
-            prompt_tokens = prompt_tokens[:max_tokens]  # Trim excess tokens
+                f"⚠️ Truncating prompt: {len(prompt_tokens)} → {max_tokens} tokens"
+            )
+            prompt_tokens = prompt_tokens[:max_tokens]
 
-        return self.model.detokenize(prompt_tokens).decode("utf-8")
+        return model.detokenize(prompt_tokens).decode("utf-8")
 
     def generate(self, prompt):
         """Generate a response from the LLM."""
-        prompt = self.truncate_prompt(prompt)  # Ensure it fits context window
+        model, context_window, max_tokens, temperature, top_p, repeat_penalty = self.get_model()
+        prompt = self.truncate_prompt(prompt, context_window)
 
-        if self.provider == "local":
-            output = self.model(prompt,
-                                max_tokens=int(get_config_value("max-tokens")),
-                                temperature=float(get_config_value("temperature")))
-            return output["choices"][0]["text"].strip()
-
-        elif self.provider == "cloud":
-            return self.model.invoke(prompt)
+        output = model(
+            prompt,
+            max_tokens=min(max_tokens, context_window // 2),
+            temperature=temperature,
+            top_p=top_p,
+            repeat_penalty=repeat_penalty
+        )
+        return output["choices"][0]["text"].strip()
 
     async def generate_stream(self, prompt):
-        """Stream responses token-by-token."""
-        prompt = self.truncate_prompt(prompt)  # Ensure it fits context window
+        """Stream responses token-by-token for WebSocket clients."""
+        model, context_window, max_tokens, temperature, top_p, repeat_penalty = self.get_model()
+        prompt = self.truncate_prompt(prompt, context_window)
 
-        if self.provider == "local":
-            for output in self.model(prompt,
-                                     max_tokens=int(
-                                         get_config_value("max-tokens")),
-                                     temperature=float(
-                                         get_config_value("temperature")),
-                                     stream=True):
-                yield output["choices"][0]["text"]
+        async for token in self.local_stream(
+            model, prompt, max_tokens, temperature, top_p, repeat_penalty
+        ):
+            yield token
 
-        elif self.provider == "cloud":
-            async for token in self.model.astream(prompt):
-                yield token
+    async def local_stream(self, model, prompt, max_tokens, temperature, top_p, repeat_penalty):
+        """Helper function for local model streaming."""
+        for output in model(
+            prompt,
+            max_tokens=min(max_tokens, 512),  # Avoid excessive length
+            temperature=temperature,
+            top_p=top_p,
+            repeat_penalty=repeat_penalty,
+            stream=True
+        ):
+            yield output["choices"][0]["text"]
+            await asyncio.sleep(0)  # Allow async execution
+
+    def get_selected_model(self):
+        """Fetch updated model details for UI."""
+        return {
+            "model": get_config_value("local-llm-model"),
+            "path": get_config_value("model-path"),
+        }
 
 
 # Initialize LLM service

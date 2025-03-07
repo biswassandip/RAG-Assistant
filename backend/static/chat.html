@@ -9,19 +9,19 @@
 
 <body>
     <div class="container">
-    
+
         <!-- Chat History -->
         <div class="chat-history-section">
             <div class="chat-history" id="chat-history"></div>
         </div>
-    
+
         <!-- Chat Input Section -->
         <div class="response-container">
             <h3>Question</h3>
             <input id="question" type="text" class="size-question" placeholder="Ask me anything..." />
             <p id="llm-response">...and you will see the response here...</p>
         </div>
-    
+
         <!-- Floating Buttons -->
         <button id="ask-button" class="floating-button floating-cta">Ask</button>
     </div>
@@ -94,10 +94,11 @@
 
                         let entry = `<div class="chat-card ${ bgColor }">
                         <strong>${ chat.timestamp }</strong><br>
-                        <strong>Q:</strong> ${ chat.question }<br>
-                        <strong>Summary:</strong> ${ chat.retrieved_summary }<br>
-                        <strong>Docs:</strong> <ul>${ filesList }</ul>
-                        <strong>Answer:</strong> ${ chat.final_answer }
+                        <strong>Question:</strong> <p>${ chat.question }</p>
+                        <strong>Model used:</strong> <p>${ chat.selected_models.model }, ${ chat.selected_models.path }</p>
+                        <strong>Referenced files:</strong> <ul>${ filesList }</ul>
+                        <strong>Summary:</strong> <p>${ chat.retrieved_summary }</p>
+                        <strong>Answer:</strong> <p>${ chat.final_answer }</p>
                     </div>`;
                         historyDiv.innerHTML += entry;
                     });
@@ -106,9 +107,9 @@
         }
 
         // Ensure WebSocket is only initialized once
-//        window.onload = function () {
-//            initWebSocket();
-//        };
+        //        window.onload = function () {
+        //            initWebSocket();
+        //        };
     </script>
 </body>
 

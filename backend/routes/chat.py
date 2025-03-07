@@ -3,12 +3,23 @@ from datetime import datetime
 from services.vectorstore import vector_store
 from services.llm import llm_service
 from routes.upload import uploaded_files_metadata  # Import uploaded file metadata
+from fastapi import APIRouter
+from database import SessionLocal, Configuration
+from constants import URL_CHAT, URL_CHAT_HISTORY
 
 router = APIRouter()
 chat_history = {}  # Dictionary to store chat history per client
 
 
-@router.websocket("/chat")
+def get_config_value(key):
+    db = SessionLocal()
+    config_entry = db.query(Configuration).filter(
+        Configuration.key == key).first()
+    db.close()
+    return config_entry.value if config_entry else "N/A"
+
+
+@router.websocket(URL_CHAT)
 async def chat_stream(websocket: WebSocket):
     """WebSocket endpoint for chat with history tracking."""
     await websocket.accept()
@@ -28,6 +39,9 @@ async def chat_stream(websocket: WebSocket):
             # Retrieve documents and identify relevant files
             relevant_files = []
             results = vector_store.retrieve(question)
+
+            # get the selected models and path used
+            selected_models = llm_service.get_selected_model()
 
             if results:
                 # Ensure unique files using a set with tuple representation
@@ -62,19 +76,41 @@ async def chat_stream(websocket: WebSocket):
             """
 
             # Generate a summary using the improved prompt
-            summary_response = llm_service.generate(summary_prompt)
+            summary_response = ""
+            # ✅ Properly awaiting async generator
+            async for token in llm_service.generate_stream(summary_prompt):
+                summary_response += token
+                # Streaming summary
+                await websocket.send_json({"type": "summary", "data": token})
 
-            # Send summarized retrieval response first
-            await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}\n\n📌 Referenced Files:"})
-
-            # Send only unique retrieved files
+            # ✅ Send Retrieved Files Info
+            await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}\n\nReferenced Files:"})
             for file in relevant_files:
                 await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
 
-            # Stream LLM response
+            final_answer_prompt = f"""
+            You are an expert assistant providing detailed and well-structured answers.
+            Use the provided summary to enhance your response, but do NOT copy it verbatim. Instead:
+
+            1. Reinterpret the summary using your own words.
+            2. Expand on key points with additional insights.
+            3. If needed, add any missing details based on the retrieved documents.
+            4. Ensure a well-structured, logically flowing answer.
+
+            **Summary of Retrieved Information:**
+            {summary_response}
+
+            **User's Original Question:**
+            {question}
+
+            **Provide a detailed and insightful answer:**
+            """
+
+            # ✅ Now Stream LLM Response
             final_response = ""
-            async for token in llm_service.generate_stream(f"Context:\n{summary_response}\n\nUser Question:\n{question}\n\nFinal Answer:"):
+            async for token in llm_service.generate_stream(final_answer_prompt):
                 final_response += token
+                # ✅ Streaming final response
                 await websocket.send_json({"type": "llm", "data": token})
 
             # Save chat history per client
@@ -83,7 +119,8 @@ async def chat_stream(websocket: WebSocket):
                 "question": question,
                 "retrieved_files": relevant_files,
                 "retrieved_summary": summary_response,
-                "final_answer": final_response
+                "final_answer": final_response,
+                "selected_models": selected_models
             })
 
             await websocket.send_json({"type": "end", "data": "✅ RAG Response Complete"})
@@ -96,7 +133,7 @@ async def chat_stream(websocket: WebSocket):
         await websocket.close()
 
 
-@router.get("/chat/history")
+@router.get(URL_CHAT_HISTORY)
 def get_chat_history(client_id: str = Query(None, description="Client ID to retrieve specific chat history")):
     """Retrieve chat history for a specific client. If no client_id is provided, return all history."""
     if client_id:
