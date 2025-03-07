@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 from services.vectorstore import vector_store
 from services.llm import llm_service
+from constants import URL_QUERY0, URL_QUERY
 
 router = APIRouter()
 
 
-@router.get("/query0")
+@router.get(URL_QUERY0)
 def query_rag(question: str):
     """Retrieve documents from FAISS and generate a response using LLM."""
     retrieved_docs = vector_store.retrieve(question)
@@ -22,7 +23,7 @@ def query_rag(question: str):
     return {"response": response}
 
 
-@router.get("/query")
+@router.get(URL_QUERY)
 def query_rag(question: str):
     """Retrieve documents using Hybrid Search and generate a response."""
     retrieved_docs = vector_store.retrieve(question)

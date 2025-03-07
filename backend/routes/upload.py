@@ -3,12 +3,14 @@ import os
 import shutil
 from datetime import datetime
 from services.vectorstore import vector_store
+from constants import URL_UPLOAD, URL_GET_FILES
 
 router = APIRouter()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 uploaded_files_metadata = []
+
 
 def extract_text(file_path):
     """Extract text from PDF, DOCX, or TXT."""
@@ -31,37 +33,9 @@ def extract_text(file_path):
 
     return ""
 
-# @router.post("/upload")
-# async def upload_files(files: list[UploadFile] = File(...)):
-#     """Handle file uploads and store metadata."""
-#     global uploaded_files_metadata
 
-#     for file in files:
-#         file_path = os.path.join(UPLOAD_DIR, file.filename)
-#         with open(file_path, "wb") as buffer:
-#             shutil.copyfileobj(file.file, buffer)
 
-#         text = extract_text(file_path)
-#         upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-#         status = "Success" if text else "Failed"
-
-#         metadata = {
-#             "uploaded_date": upload_date,
-#             "file_name": file.filename,
-#             "file_type": file.content_type,
-#             "status": status,
-#             "file_about": text[:100] if text else "Could not extract text"
-#         }
-
-#         uploaded_files_metadata.append(metadata)
-
-#         if text:
-#             vector_store.add_documents([text])
-
-#     return {"message": "Files processed successfully!", "metadata": uploaded_files_metadata}
-
-@router.post("/upload")
+@router.post(URL_UPLOAD)
 async def upload_files(files: list[UploadFile] = File(...)):
     """Handle file uploads and store metadata."""
     global uploaded_files_metadata
@@ -74,7 +48,8 @@ async def upload_files(files: list[UploadFile] = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        text = extract_text(file_path)  # Ensure this function extracts text correctly
+        # Ensure this function extracts text correctly
+        text = extract_text(file_path)
         upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         status = "Success" if text else "Failed"
@@ -99,7 +74,8 @@ async def upload_files(files: list[UploadFile] = File(...)):
 
     return {"message": "Files processed successfully!", "metadata": uploaded_files_metadata}
 
-@router.get("/files")
+
+@router.get(URL_GET_FILES)
 def get_uploaded_files():
     """Retrieve uploaded file metadata."""
     return uploaded_files_metadata

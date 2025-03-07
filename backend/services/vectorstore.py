@@ -92,43 +92,6 @@ class HybridVectorStore:
         self.bm25_model = BM25Okapi(self.bm25_corpus)
 
 
-    def retrieve1(self, query):
-        """Retrieve top-k documents using FAISS & BM25, with optional adaptive filtering."""
-        if not self.text_corpus:
-            return ["No documents available in the knowledge base."]
-
-        num_docs = len(self.text_corpus)  # Total number of stored documents
-
-        # BM25 Sparse Retrieval
-        bm25_scores = np.zeros(num_docs)
-        if self.bm25_model:
-            bm25_scores = self.bm25_model.get_scores(query.split())
-
-        # FAISS Dense Retrieval with Similarity Scores
-        top_k = int(get_config_value("top-k", 7))
-        dense_results_with_scores = self.store.similarity_search_with_score(query, k=top_k) if self.text_corpus else []
-        dense_results = [doc for doc, score in dense_results_with_scores]
-        dense_scores = np.array([score for _, score in dense_results_with_scores])
-
-        if not dense_results:
-            return ["No relevant documents found."]
-
-        # Choose Between Fixed & Adaptive Thresholding
-        enable_adaptive_threshold = int(get_config_value("enable-adaptive-threshold", 1))
-        if enable_adaptive_threshold:
-            mean_score = np.mean(dense_scores)
-            std_dev = np.std(dense_scores)
-            similarity_threshold = max(mean_score - std_dev, 0.1)
-        else:
-            similarity_threshold = self.SIMILARITY_THRESHOLD
-
-        # Filter Results Based on the Selected Threshold
-        filtered_results = [
-            doc.page_content for doc, score in zip(dense_results, dense_scores) if score > similarity_threshold
-        ]
-
-        return filtered_results if filtered_results else ["No relevant documents found."]
-
     def retrieve(self, query):
         """Retrieve top-k documents using FAISS & BM25, with metadata."""
         if not self.text_corpus:

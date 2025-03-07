@@ -1,29 +1,29 @@
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from constants import DATABASE_URL
 
-DATABASE_URL = "sqlite:///./config.db"
+DATABASE_URL = DATABASE_URL
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
 
 class Configuration(Base):
     __tablename__ = "configurations"
     key = Column(String, primary_key=True, index=True)
     value = Column(String, nullable=False)
 
+
 def init_db():
     """Initialize database and insert default values."""
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     default_configs = {
-        "llm-provider": "local",
         "llm-model": "llama2",
         "local-llm-model": "mistral7b",
         "model-path": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
-        "cloud-llm-model": "HuggingFaceH4/zephyr-7b-beta",
-        "api-token": "",
         "chunk-size": "500",
         "chunk-overlap": "100",
         "alpha": "0.6",
@@ -36,7 +36,10 @@ def init_db():
         "similarity-threshold": "0.2",
         "embedding-model": "sentence-transformers/multi-qa-MiniLM-L6-cos-v1",
         "enable-adaptive-threshold": "1",
-        "default-response-length": "medium"
+        "default-response-length": "medium",
+        "chunk-size":"500",
+        "chunk-size": "500",
+        "chunk-overlap":"100"
     }
 
     for key, value in default_configs.items():
@@ -44,5 +47,6 @@ def init_db():
             db.add(Configuration(key=key, value=value))
     db.commit()
     db.close()
+
 
 init_db()
