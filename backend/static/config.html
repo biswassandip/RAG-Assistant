@@ -1,201 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG Configuration Management</title>
-    <link rel="stylesheet" href="/static/config.css"> <!-- Load external CSS -->
+    <title>Config</title>
 </head>
+
 <body>
     <div class="container">
-        <h2>⚙️ RAG Configuration Management</h2>
-
         <form id="config-form">
-            <div class="config-group">
-                <label>🌐 LLM Provider</label>
-                <p>Allowed values: "local" or "cloud"</p>
-                <input type="text" id="llm-provider" />
-            </div>
-            
-            <div class="config-group">
-                <label>🤖 LLM Model</label>
-                <p>Examples "llama2", "mistral"</p>
-                <input type="text" id="llm-model" />
-            </div>
-            
-            <div class="config-group">
-                <label>📁 Local LLM Model</label>
-                <p> 
-                    Required when LLM Provider is "local". 
-                    <br/>Examples "tinyllama", "mistral7b", "llama2"
-                </p>
-                <input type="text" id="local-llm-model" />
-            </div>
+            <div class="input-container">
+                <!-- LLM Provider -->
+                <!-- <div class="form-group">
+                    <label for="llm_provider">LLM Provider</label>
+                    <small>Allowed values: "local" or "cloud"</small>
+                    <input type="text" id="llm-provider" maxlength="20" class="size-fixed-string">
+                </div> -->
 
-            <div class="config-group">
-                <label>📁 Local LLM Model Path</label>
-                <p>
-                    Required when LLM Provider is "local". 
-                    <br/>This is the path where the model has been downloaded. 
-                    <br/>Examples models/llama-2-7b.Q8_0.gguf, models/llama-2-7b-chat.Q4_K_M.gguf, models/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-                </p>
-                <input type="text" id="model-path" />
-            </div>
-            
-            <div class="config-group">
-                <label>☁️ CLOUD LLM MODEL</label>
-                <p>Required when LLM Provider is "cloud"</p>
-                <input type="text" id="cloud-llm-model" />
-            </div>
-            
-            <div class="config-group">
-                <label>🔑 API Token</label>
-                <p>Required when LLM Provider is "cloud".</p>
-                <input type="text" id="api-token" />
-            </div>
+                <!-- LLM Model -->
+                <!-- <div class="form-group">
+                    <label for="llm_model">LLM Model</label>
+                    <small>Examples: "llama2", "mistral"</small>
+                    <input type="text" id="llm-model" maxlength="20" class="size-fixed-string">
+                </div> -->
 
-            <div class="config-group">
-                <label>📜 CHUNK_SIZE</label>
-                <p>
-                    CHUNK_SIZE controls the size of document splits.
-                    <br/>A smaller chunk size (e.g., 300) improves precision but may reduce recall.
-                    <br/>A larger chunk size (e.g., 1000) retains more context but may return broader results.                                    </p>
-                <input type="text" id="chunk-size" />
-            </div>
+                <!-- Local LLM Model -->
+                <div class="form-group">
+                    <label for="local_llm_model">Local LLM Model</label>
+                    <small>Values: "tinyllama", "mistral7b", "llama2"</small>
+                    <input type="text" id="local-llm-model" maxlength="20" class="size-fixed-string">
+                </div>
 
-            <div class="config-group">
-                <label>🔗 CHUNK_OVERLAP</label>
-                <p>
-                    CHUNK_OVERLAP ensures overlapping words between chunks to retain context.
-                    <br/>If set too high, it increases redundancy; too low may cause loss of information.
-                </p>
-                <input type="text" id="chunk-overlap" />
-            </div>
-            
-            <div class="config-group">
-                <label>⚖️ ALPHA</label>
-                <p>
-                    ALPHA controls the weight balance between BM25 (keyword search) and FAISS (vector search).
-                    <br/>ALPHA = 1.0 → Full BM25 (text-based keyword matching)
-                    <br/>ALPHA = 0.0 → Full FAISS (semantic search)
-                    <br/>ALPHA = 0.5 → Equal mix of BM25 & FAISS (balanced hybrid search)
-                </p>
-                <input type="text" id="alpha" />
-            </div>
-            
-            <div class="config-group">
-                <label>📊 TOP_K</label>
-                <p>
-                    TOP_K controls how many documents to retrieve before LLM processing.
-                    <br/>Lower values (e.g., 3) improve response time but may reduce accuracy.
-                    <br/>Higher values (e.g., 10) provide broader context but increase processing time.
-                </p>
-                <input type="text" id="top-k" />
-            </div>
-            
-            <div class="config-group">
-                <label>📝 MAX_TOKENS</label>
-                <p>
-                    MAX_TOKENS controls how long the generated response can be.
-                    <br/>A higher value (e.g., 512) ensures complete answers but increases response time.
-                    <br/>A lower value (e.g., 256) speeds up responses but may cause cut-off sentences.                                    
-                </p>
-                <input type="text" id="max-tokens" />
-            </div>
+                <!-- Local LLM Model Path -->
+                <div class="form-group">
+                    <label for="local_llm_model_path">Local LLM Model Path</label>
+                    <small>
+                        These are the models downloaded in the local directory /models.
+                        <br/>Values:
+                        <br />models/llama-2-7b-chat.Q4_K_M.gguf (to be used with Local LLM Model "llama2")
+                        <br />models/llama-2-7b.Q8_0.gguf (to be used with Local LLM Model "llama2")
+                        <br />models/mistral-7b-instruct-v0.1.Q4_K_M.gguf (to be used with Local LLM Model "mistral7b")
+                        <br />models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf (to be used with Local LLM Model "tinyllama")
+                    </small>
+                    <input type="text" id="model-path" maxlength="100" class="size-fixed-string">
+                </div>
 
-            <div class="config-group">
-                <label>🎭 TEMPERATURE</label>
-                <p>
-                    TEMPERATURE controls randomness in the response.
-                    <br/>TEMPERATURE = 0.0 → Always gives the same response (good for factual answers).
-                    <br/>TEMPERATURE = 1.0 → More creative and varied responses (good for storytelling).
-                    <br/>TEMPERATURE = 0.7 → A balanced mix of consistency & creativity (recommended).                                    
-                </p>
-                <input type="text" id="temperature" />
-            </div>
-            
-            <div class="config-group">
-                <label>🎯 TOP_P</label>
-                <p>
-                    TOP_P controls how much of the probability mass is considered.
-                    <br/>A high value (e.g., 0.95) allows more diverse responses.
-                    <br/>A low value (e.g., 0.5) restricts output to highly likely words.                                                    
-                </p>
-                <input type="text" id="top-p" />
-            </div>
-            
-            <div class="config-group">
-                <label>🧠 N_CTX</label>
-                <p>
-                    N_CTX (Context Window) controls how much of the conversation history is considered.
-                    <br/>A low value (e.g., 512) considers less past information but is faster.
-                    <br/>A high value (e.g., 2048) ensures better contextual understanding but is slower.                    
-                </p>
-                <input type="text" id="n-ctx" />
-            </div>
-            
-            <div class="config-group">
-                <label>🚀 N_BATCH</label>
-                <p>
-                    N_BATCH controls how many tokens are processed in parallel.
-                    <br/>A higher value (e.g., 64) improves performance but may use more memory.                                    
-                </p>
-                <input type="text" id="n-batch" />
-            </div>
-            
-            <div class="config-group">
-                <label>🔬 EMBEDDING_MODEL</label>
-                <p>
-                    FAISS Embedding Model for Better Vector Search
-                    <br/>Options:
-                    <br/>- sentence-transformers/all-MiniLM-L6-v2 (Fast, Medium Accuracy)
-                    <br/>- sentence-transformers/multi-qa-MiniLM-L6-cos-v1 (Optimized for Q&A Search)
-                    <br/>- intfloat/multilingual-e5-base (Best for diverse queries)                                    
-                </p>
-                <input type="text" id="embedding-model" />
-            </div>
-            
-            <div class="config-group">
-                <label>🛠 ENABLE_ADAPTIVE_THRESHOLD</label>
-                <p>
-                    FAISS Adaptive Similarity Thresholding
-                    <br/>If ENABLE_ADAPTIVE_THRESHOLD=1, the threshold is calculated dynamically.
-                    <br/>If ENABLE_ADAPTIVE_THRESHOLD=0, a fixed threshold is used.                                    
-                </p>
-                <input type="text" id="enable-adaptive-threshold" />
-            </div>
+                <!-- Cloud LLM Model -->
+                <!-- <div class="form-group">
+                    <label for="cloud_llm_model">Cloud LLM Model</label>
+                    <small>Required when LLM Provider is "cloud".</small>
+                    <input type="text" id="cloud-llm-model" maxlength="50" class="size-fixed-string">
+                </div> -->
 
-            <div class="config-group">
-                <label>🔍 SIMILARITY_THRESHOLD</label>
-                <p>
-                    Similarity threshold for FAISS retrieval
-                    <br/>A lower value (e.g., 0.1) allows more results but may include irrelevant ones.
-                    <br/>A higher value (e.g., 0.5) ensures only highly relevant results are returned.  
-                    <br/>Only used if ENABLE_ADAPTIVE_THRESHOLD=0.                  
-                </p>
-                <input type="text" id="similarity-threshold" />
-            </div>
+                <!-- API Token -->
+                <!-- <div class="form-group">
+                    <label for="api_token">API Token</label>
+                    <small>Required when LLM Provider is "cloud".</small>
+                    <input type="text" id="api-token" maxlength="100" class="size-fixed-string">
+                </div> -->
 
-            <div class="config-group">
-                <label>📏 DEFAULT_RESPONSE_LENGTH</label>
-                <p>Default response length (short, medium, long).</p>
-                <input type="text" id="default-response-length" />
+                <!-- Numeric Fields -->
+                <div class="form-group">
+                    <label for="chunk_size">Chunk Size</label>
+                    <small>
+                        CHUNK_SIZE controls the size of document splits.
+                        <br/>A smaller chunk size (e.g., 300) improves precision but may reduce recall.
+                        <br />A larger chunk size (e.g., 1000) retains more context but may return broader results.                        
+                    </small>
+                    <input type="number" id="chunk-size" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <div class="form-group">
+                    <label for="chunk_overlap">Chunk Overlap</label>
+                    <small>
+                        CHUNK_OVERLAP ensures overlapping words between chunks to retain context.
+                        <br/>If set too high, it increases redundancy; too low may cause loss of information.                        
+                    </small>
+                    <input type="number" id="chunk-overlap" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <div class="form-group">
+                    <label for="alpha">ALPHA</label>
+                    <small>
+                        ALPHA controls the weight balance between BM25 (keyword search) and FAISS (vector search).
+                        <br/>ALPHA = 1.0 → Full BM25 (text-based keyword matching)
+                        <br />ALPHA = 0.0 → Full FAISS (semantic search)
+                        <br />ALPHA = 0.5 → Equal mix of BM25 & FAISS (balanced hybrid search)                        
+                    </small>
+                    <input type="number" id="alpha" step="0.1" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <div class="form-group">
+                    <label for="top_k">TOP_K</label>
+                    <small>
+                        TOP_K controls how many documents to retrieve before LLM processing.
+                        <br/>Lower values (e.g., 3) improve response time but may reduce accuracy.
+                        <br />Higher values (e.g., 10) provide broader context but increase processing time.                        
+                    </small>
+                    <input type="number" id="top-k" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <div class="form-group">
+                    <label for="max_tokens">MAX_TOKENS</label>
+                    <small>
+                        MAX_TOKENS controls how long the generated response can be.
+                        <br/>A higher value (e.g., 512) ensures complete answers but increases response time.
+                        <br />A lower value (e.g., 256) speeds up responses but may cause cut-off sentences.                        
+                    </small>
+                    <input type="number" id="max-tokens" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <div class="form-group">
+                    <label for="temperatue">TEMPERATURE</label>
+                    <small>
+                        TEMPERATURE controls randomness in the response.
+                        <br />TEMPERATURE = 0.0 → Always gives the same response (good for factual answers).
+                        <br />TEMPERATURE = 1.0 → More creative and varied responses (good for storytelling).
+                        <br />TEMPERATURE = 0.7 → A balanced mix of consistency & creativity (recommended).
+                    </small>
+                    <input type="number" id="temperature" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="top_p">TOP_P</label>
+                    <small>
+                        TOP_P controls how much of the probability mass is considered.
+                        <br />A high value (e.g., 0.95) allows more diverse responses.
+                        <br />A low value (e.g., 0.5) restricts output to highly likely words.
+                    </small>
+                    <input type="number" id="top-p" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="n_ctx">N_CTX</label>
+                    <small>
+                        N_CTX (Context Window) controls how much of the conversation history is considered.
+                        <br />A low value (e.g., 512) considers less past information but is faster.
+                        <br />A high value (e.g., 2048) ensures better contextual understanding but is slower.
+                    </small>
+                    <input type="number" id="n-ctx" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="n_batch">N_BATCH</label>
+                    <small>
+                        N_BATCH controls how many tokens are processed in parallel.
+                        <br />A higher value (e.g., 64) improves performance but may use more memory.
+                    </small>
+                    <input type="number" id="n-batch" maxlength="6" class="size-fixed-number">
+                </div>
+
+                <!-- Embedding Model -->
+                <div class="form-group">
+                    <label for="embedding_model">Embedding Model (FAISS)</label>
+                    <small>
+                        FAISS Embedding Model for Better Vector Search
+                        <br/>Values:
+                        <br />sentence-transformers/all-MiniLM-L6-v2 (Fast, Medium Accuracy)
+                        <br />sentence-transformers/multi-qa-MiniLM-L6-cos-v1 (Optimized for Q&A Search)
+                        <br />intfloat/multilingual-e5-base (Best for diverse queries)                        
+                    </small>
+                    <input type="text" id="embedding-model" maxlength="100" class="size-fixed-string">
+                </div>
+
+                <div class="form-group">
+                    <label for="enable_adaptive_threshold">ENABLE_ADAPTIVE_THRESHOLD (FAISS)</label>
+                    <small>
+                        FAISS Adaptive Similarity Thresholding
+                        <br />If ENABLE_ADAPTIVE_THRESHOLD=1, the threshold is calculated dynamically.
+                        <br />If ENABLE_ADAPTIVE_THRESHOLD=0, a fixed threshold is used.
+                    </small>
+                    <input type="number" id="enable-adaptive-threshold" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="similarity_threshold">SIMILARITY_THRESHOLD (FAISS)</label>
+                    <small>
+                        SIMILARITY_THRESHOLD for FAISS retrieval
+                        <br />A lower value (e.g., 0.1) allows more results but may include irrelevant ones.
+                        <br />A higher value (e.g., 0.5) ensures only highly relevant results are returned.
+                        <br />Only used if ENABLE_ADAPTIVE_THRESHOLD=0.
+                    </small>
+                    <input type="number" id="similarity-threshold" maxlength="6" class="size-fixed-number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="default_response_length">Default response length</label>
+                    <small>Default response length (short, medium, long).</small>
+                    <input type="text" id="default-response-length" maxlength="100" class="size-fixed-string">
+                </div>
             </div>
-            
-            <button class="btn save-btn" id="save-button" onclick="saveConfigs(event)">💾 Save</button>
+            <!-- Floating Save Button -->
+            <button id="save-button" class="floating-button floating-cta" onclick="saveConfigs(event)">Save</button>
         </form>
     </div>
 
     <script>
         function fetchConfigs() {
             fetch("/api/config/all")
-            .then(response => response.json())
-            .then(configs => {
-                Object.keys(configs).forEach(key => {
-                    let input = document.getElementById(key);
-                    if (input) input.value = configs[key];
-                });
-            });
+                .then(response => response.json())
+                .then(configs => {
+                    Object.keys(configs).forEach(key => {
+                        let input = document.getElementById(key);
+                        if (input) input.value = configs[key];
+                    });
+                })
+                .catch(error => console.error("Error fetching configs:", error));
         }
 
         function saveConfigs(event) {
@@ -211,13 +222,15 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updates)
             })
-            .then(response => response.json())
-            .then(data => {
-                alert("Configurations saved successfully!");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    alert("Configurations saved successfully!");
+                })
+                .catch(error => console.error("Error saving configs:", error));
         }
-
-        window.onload = fetchConfigs;
     </script>
+
+
 </body>
+
 </html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/main.css">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function loadPage(page, selectedMenu) {
+                document.getElementById("content").classList.add("fade-out");
+
+                setTimeout(() => {
+                    fetch(page)
+                        .then(response => response.text())
+                        .then(html => {
+                            const contentElement = document.getElementById("content");
+
+                            // Create a temporary container to parse the HTML
+                            const tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = html;
+
+                            // Remove old scripts from previous loads
+                            const oldScripts = contentElement.querySelectorAll("script");
+                            oldScripts.forEach(script => script.remove());
+
+                            // Inject the new HTML content
+                            contentElement.innerHTML = tempDiv.innerHTML;
+
+                            // Execute scripts from the loaded content
+                            executeScripts(tempDiv);
+
+                            document.getElementById("content").classList.remove("fade-out");
+                            document.getElementById("content").classList.add("fade-in");
+                        });
+
+                    // Update active menu
+                    document.querySelectorAll(".menu-item").forEach(item => {
+                        item.classList.remove("active");
+                    });
+                    document.getElementById(selectedMenu).classList.add("active");
+                }, 300);
+            }
+
+            function executeScripts(container) {
+                const scripts = container.querySelectorAll("script");
+
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        newScript.async = true;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+
+                // Initialize config scripts
+                if (document.getElementById("config-form")) {
+                    fetchConfigs();
+                    document.getElementById("save-button").addEventListener("click", saveConfigs);
+                }
+
+                // Initialize upload scripts
+                if (document.getElementById("uploaded-files")) {
+                    loadUploadedFiles();
+                    document.getElementById("upload-button").addEventListener("click", uploadFiles);
+                }
+
+                // Initialize chat scripts
+                if (document.getElementById("chat-history")) {
+                    initWebSocket();
+                    loadChatHistory();
+                    document.getElementById("ask-button").addEventListener("click", askQuestion);
+                    //document.getElementById("reset-button").addEventListener("click", resetChat);
+                }
+            }
+
+            // Event Listeners for Menu Items
+            document.getElementById("config").addEventListener("click", function () {
+                loadPage("/static/config.html", "config");
+            });
+
+            document.getElementById("uploads").addEventListener("click", function () {
+                loadPage("/static/uploads.html", "uploads");
+            });
+
+            document.getElementById("chat").addEventListener("click", function () {
+                loadPage("/static/chat.html", "chat");
+            });
+
+            // Load default page
+            loadPage("/static/chat.html", "chat");
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="/static/images/RAG-TNL.jpg" alt="Logo">
+        </div>
+        <nav>
+            <ul>
+                <li id="config" class="menu-item active">
+                    <span class="icon">
+                        <img src="/static/images/config.jpg" class="icon">
+                    </span>
+                    <span class="label">Config</span>
+                </li>
+                <li id="uploads" class="menu-item">
+                    <span class="icon">
+                        <img src="/static/images/upload.jpg" class="icon">
+                    </span>
+                    <span class="label">Upload</span>
+                </li>
+                <li id="chat" class="menu-item">
+                    <span class="icon">
+                        <img src="/static/images/ask.jpg" class="icon">
+                    </span>
+                    <span class="label">Ask</span>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main id="content">
+        <!-- Dynamic content will be loaded here -->
+    </main>
+</body>
+
+</html>

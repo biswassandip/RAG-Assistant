@@ -1,87 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAG AI Chat</title>
-    <link rel="stylesheet" href="chat.css">
 </head>
+
 <body>
-    <h1>RAG AI Chat</h1>
-
-    <!-- Chat Section -->
-    <div class="response-container">
-        <div class="question-header">
-            <h3>Ask a Question</h3>
-            <button onclick="askQuestion()">Ask</button>
+    <div class="container">
+    
+        <!-- Chat History -->
+        <div class="chat-history-section">
+            <div class="chat-history" id="chat-history"></div>
         </div>
-        <input id="question" type="text" placeholder="Ask me anything..." />
-
-        <h3>Final RAG Response (LLM):</h3>
-        <p id="llm-response">Waiting for response...</p>
-
-        <div class="question-header">
-            <h3>Chat History</h3>
-            <button onclick="resetChat()">Reset Chat</button>
+    
+        <!-- Chat Input Section -->
+        <div class="response-container">
+            <h3>Question</h3>
+            <input id="question" type="text" class="size-question" placeholder="Ask me anything..." />
+            <p id="llm-response">...and you will see the response here...</p>
         </div>
-        <div class="chat-history" id="chat-history"></div>
+    
+        <!-- Floating Buttons -->
+        <button id="ask-button" class="floating-button floating-cta">Ask</button>
     </div>
 
     <script>
-        let socket = new WebSocket("ws://127.0.0.1:8000/api/chat");
+        let socket = null;
+        let clientId = sessionStorage.getItem("client_id");
+
+        if (!clientId) {
+            clientId = `client_${ Math.random().toString(36).substr(2, 9) }`;
+            sessionStorage.setItem("client_id", clientId);
+        }
+
+        function initWebSocket() {
+            if (socket !== null && socket.readyState === WebSocket.OPEN) {
+                console.log(4);
+                console.warn("WebSocket connection already open. Skipping re-initialization.");
+                return;
+            }
+
+            let host = window.location.host;
+            socket = new WebSocket(`ws://${ host }/api/chat`);
+
+            socket.onopen = function () {
+                console.log("Connected to WebSocket server.");
+                socket.send(JSON.stringify({ client_id: clientId }));
+            };
+
+            socket.onmessage = function (event) {
+                let data = JSON.parse(event.data);
+                if (data.type === "llm") {
+                    let llmElement = document.getElementById("llm-response");
+                    llmElement.innerText += data.data;
+                } else if (data.type === "end") {
+                    document.getElementById("llm-response").innerText += "\n[Done]";
+                    loadChatHistory();
+                }
+            };
+
+            socket.onerror = function (error) {
+                console.error("WebSocket Error:", error);
+            };
+
+            socket.onclose = function () {
+                console.log("WebSocket closed, reconnecting...");
+                setTimeout(initWebSocket, 2000);
+            };
+        }
 
         function askQuestion() {
-            let question = document.getElementById("question").value;
+            let question = document.getElementById("question").value.trim();
+            if (!question.trim()) return;
+
             document.getElementById("llm-response").innerText = "[Generating response...]";
             socket.send(question);
         }
 
-        socket.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-            
-            if (data.type === "llm") {
-                let llmElement = document.getElementById("llm-response");
-                llmElement.innerText += data.data;
-            } else if (data.type === "end") {
-                document.getElementById("llm-response").innerText += "\n[Done]";
-                loadChatHistory();
-            }
-        };
-
         function loadChatHistory() {
-            fetch("http://127.0.0.1:8000/api/chat/history")
-            .then(response => response.json())
-            .then(history => {
-                let historyDiv = document.getElementById("chat-history");
-                historyDiv.innerHTML = "";
-                history.forEach(chat => {
-                    let filesList = chat.retrieved_files.map(file => 
-                        `<li>${file.file_name} (${file.file_type}, Uploaded: ${file.uploaded_date})</li>`
-                    ).join("");
-                    
-                    let entry = `<p><strong>${chat.timestamp}</strong><br>
-                        <strong>Q:</strong> ${chat.question}<br>
-                        <strong>Summary:</strong> ${chat.retrieved_summary}<br>
-                        <strong>Docs:</strong> <ul>${filesList}</ul>
-                        <strong>Answer:</strong> ${chat.final_answer}</p>`;
-                    historyDiv.innerHTML += entry;
-                });
-            })
-            .catch(error => console.error(error));
+            fetch(`/api/chat/history?client_id=${ clientId }`)
+                .then(response => response.json())
+                .then(history => {
+                    let historyDiv = document.getElementById("chat-history");
+                    historyDiv.innerHTML = "";
+                    history.forEach((chat, index) => {
+                        let filesList = chat.retrieved_files.map(file =>
+                            `<li>${ file.file_name } (${ file.file_type }, Uploaded: ${ file.uploaded_date })</li>`
+                        ).join("");
+
+                        let bgColor = index % 2 === 0 ? "chat-card-light" : "chat-card-dark";
+
+                        let entry = `<div class="chat-card ${ bgColor }">
+                        <strong>${ chat.timestamp }</strong><br>
+                        <strong>Q:</strong> ${ chat.question }<br>
+                        <strong>Summary:</strong> ${ chat.retrieved_summary }<br>
+                        <strong>Docs:</strong> <ul>${ filesList }</ul>
+                        <strong>Answer:</strong> ${ chat.final_answer }
+                    </div>`;
+                        historyDiv.innerHTML += entry;
+                    });
+                })
+                .catch(error => console.error("Error loading chat history:", error));
         }
 
-        function resetChat() {
-            fetch("http://127.0.0.1:8000/api/chat/reset", { method: "POST" })
-            .then(response => response.json())
-            .then(data => {
-                window.location.reload();
-            })
-            .catch(error => console.error(error));
-        }
-
-        window.onload = function() {
-            loadChatHistory();
-        };
+        // Ensure WebSocket is only initialized once
+//        window.onload = function () {
+//            initWebSocket();
+//        };
     </script>
 </body>
+
 </html>
