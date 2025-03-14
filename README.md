@@ -75,6 +75,37 @@ graph TD;
 ```
 ---
 
+## To use, download the below LLMs and tryout by updating the config giving the Local LLM Path
+### Larger Models
+
+#### Llama 2 GGUF
+```
+wget -P models https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+```
+
+#### Mistral 7B GGUF
+```
+wget -P https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+```
+
+### Smaller Models
+#### TinyLlama 1.1B (FASTEST)
+```
+wget -P https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF/resolve/main/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
+```
+
+#### Mistral 7B (Quantized)
+```
+wget -P https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+```
+
+#### Llama 2 7B (Quantized)
+```
+wget -P https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+```
+
+---
+
 ## 🔥 Key Features
 
 ### ✅ 1. Multi-format Document Processing
@@ -135,6 +166,8 @@ Edit
 pip install -r requirements.txt
 ```
 
+####  Download the LLM (see above for links) and copy to /models
+
 ### 4️⃣ Start the Backend
 ```bash
 Copy
@@ -145,6 +178,7 @@ python main.py
 ### 5️⃣ Access the Web Interface
 Open http://localhost:8000 in your browser.
 
+####  Go to config and update the Local LLM path
 ---
 
 ## 🎯 Future Enhancements

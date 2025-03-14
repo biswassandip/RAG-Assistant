@@ -21,4 +21,3 @@ websockets==15.0
 llama_cpp_python==0.3.5
 tiktoken==0.9.0
 faiss-cpu==1.10.0
-fastapi==0.115.9
