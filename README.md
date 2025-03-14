@@ -1,39 +1,67 @@
-# RAG-Assistant
-fastapi → API framework.
-uvicorn → FastAPI server.
-langchain → RAG implementation.
-faiss-cpu → Vector database.
-sqlite3 → Local database.
-streamlit → Admin panel.
-jwt → Authentication.
+# 🚀 RAG-Backend: Local LLM-Powered Retrieval-Augmented Generation System
 
-models availabilitt
+![GitHub Repo Size](https://img.shields.io/github/repo-size/your-username/rag-backend)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![LangChain](https://img.shields.io/badge/LangChain-Enabled-green)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
-Download the Larger Models
-Llama 2 GGUF
-wget -P models https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+---
 
-Mistral 7B GGUF
-wget -P https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+## 📖 About RAG-Backend
+**RAG-Backend** is an **open-source, local LLM-powered Retrieval-Augmented Generation (RAG) system** that allows users to **upload multiple file types** (PDFs, DOCX, Excel, Images, XML, etc.), **index them into a vector database**, and **perform intelligent searches** to get accurate responses.  
 
-Download the Smaller Models
-Download TinyLlama 1.1B (FASTEST)
-wget -P https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF/resolve/main/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
-Download Mistral 7B (Quantized)
-wget -P https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-Download Llama 2 7B (Quantized)
-wget -P https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+### 🛠 How It Works (Layman's Terms)
+- Think of this as your **personal AI-powered knowledge base**.  
+- You **upload documents**, and the system **remembers** what’s inside.  
+- Whenever you **ask a question**, it **retrieves** the most relevant content and generates a smart answer using a **local LLM (like Llama2, Mistral, TinyLlama)**.  
+- **No internet dependency** – everything runs **locally on your machine**.  
 
-brew install python@3.11
-python3 --version
-echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-python3 --version
+### ⚙️ Technical Overview
+- **Retrieval-Augmented Generation (RAG):** Combines **vector-based retrieval (FAISS)** + **BM25 keyword-based retrieval**.  
+- **Local LLM-based AI Chat:** Uses **Llama.cpp**, allowing users to interact with an **AI model offline**.  
+- **Hybrid Search:** Both **semantic similarity search (FAISS)** and **keyword-based ranking (BM25)**.  
+- **Multi-format Document Processing:** Supports **PDFs, DOCX, Excel, Images, XML, Text, etc.**.  
+- **LangChain-powered Query Expansion:** Improves search relevance.  
+- **Streaming Response:** Answers are streamed **in real-time** via WebSocket.  
+- **Efficient Indexing:** Handles large document uploads with **adaptive chunking**.  
 
-python3 -m venv rag-backend
-source rag-backend/bin/activate
-deactivate
+---
 
+## 🌟 Why Use RAG-Backend?
+### 🏆 Benefits (Layman's Perspective)
+✅ **Your Personal AI Research Assistant:** Search through thousands of documents and get **instant, relevant answers**.  
+✅ **Works Offline:** No internet required, ensuring **data privacy**.  
+✅ **Handles Multiple File Types:** PDFs, Word Docs, Excel, Images, etc.  
+✅ **Faster Response with Streaming:** No long waits – answers **stream in real-time**.  
+✅ **Open-Source & Free:** Use it **without** API costs or cloud dependencies.  
 
-pip freeze > requirements.txt
-pip install -r requirements.txt
+### 📊 Benefits (Technical Perspective)
+✅ **Hybrid Retrieval (Semantic + BM25):** Best of both **vector** and **keyword search**.  
+✅ **Supports Local LLMs:** Runs on **TinyLlama, Llama2, Mistral-7B** models via `llama.cpp`.  
+✅ **Optimized Query Expansion:** Uses **LangChain** to **expand queries** dynamically.  
+✅ **Efficient Document Chunking:** Uses **RecursiveCharacterTextSplitter** for **optimal embedding**.  
+✅ **Fully Asynchronous WebSockets:** Ensures **low-latency real-time AI responses**.  
+
+### 🏢 Who is this for?
+- 📚 **Researchers & Academics**: Search through **research papers, books, and notes** instantly.  
+- 🏢 **Businesses & Enterprises**: Use it as an **internal document search assistant**.  
+- 🧑‍💻 **Developers & AI Enthusiasts**: Experiment with **RAG & LLM models locally**.  
+- 🔒 **Privacy-Conscious Users**: No cloud API means **your data stays with you**.  
+
+---
+
+## 🏗 Architecture Diagram
+Below is the architecture of how **RAG-Backend** processes data and generates responses.
+
+```mermaid
+graph TD;
+    User -->|Uploads| FileProcessor;
+    FileProcessor -->|Extracts text| Chunking;
+    Chunking -->|Embeds| FAISSIndex;
+    FAISSIndex -->|Stores & Retrieves| VectorDB;
+    User -->|Asks a Question| QueryProcessor;
+    QueryProcessor -->|Retrieves Docs| VectorDB;
+    QueryProcessor -->|Enhances Query| LangChain;
+    LangChain -->|Passes Context| LocalLLM;
+    LocalLLM -->|Generates Response| ResponseStreamer;
+    ResponseStreamer -->|Streams Answer| User;

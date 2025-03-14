@@ -1,12 +1,14 @@
 import os
 import torch
-from database import SessionLocal, Configuration
-from llama_cpp import Llama  # For local LLMs (Llama.cpp)
 import asyncio
-from fastapi.responses import StreamingResponse
+from database import SessionLocal, Configuration
+from langchain_community.llms import LlamaCpp
+from langchain_core.prompts import PromptTemplate
+from langchain.memory import ConversationBufferMemory
+from langchain.text_splitter import TokenTextSplitter
+from services.vectorstore import vector_store
 
-
-# constants used for the config
+# Constants for database config keys
 LOCAL_LLM_MODEL = "local-llm-model"
 MODEL_PATH = "model-path"
 CONTEXT_WINDOW = "n-ctx"
@@ -15,14 +17,14 @@ TEMPERATURE = "temperature"
 TOP_P = "top-p"
 REPEAT_PENALTY = "repeat-penalty"
 N_BATCH = "n-batch"
+
 TINYLLAMA = "tinyllama"
 LLAMA2 = "llama2"
 MISTRAL = "mistral"
 
 
-# fetches config values from the db
 def get_config_value(key):
-    """Fetches the latest configuration value from the database."""
+    """Fetch the latest configuration value from the database."""
     db = SessionLocal()
     config_entry = db.query(Configuration).filter(
         Configuration.key == key).first()
@@ -30,17 +32,16 @@ def get_config_value(key):
     return config_entry.value if config_entry else None
 
 
-# main llm service
 class LLMService:
     def __init__(self):
-        """Initialize LLMService without storing static config values."""
-        self.model = None  # Model is loaded dynamically
-        self.config = None  # Config is stored in cache
+        """Initialize LLMService with LangChain and conversation memory."""
+        self.model = None  # Lazy-loaded model
+        self.config = None  # Cached configuration
+        self.memory = ConversationBufferMemory(
+            memory_key="history", return_messages=True)
 
     def get_model(self):
-        """Dynamically fetch the latest model based on updated config."""
-
-        # Fetch dynamic config
+        """Fetch the latest model and configurations dynamically."""
         config = {
             CONTEXT_WINDOW: int(get_config_value(CONTEXT_WINDOW)),
             MAX_TOKENS: int(get_config_value(MAX_TOKENS)),
@@ -54,92 +55,92 @@ class LLMService:
 
         if not config[MODEL_PATH] or not os.path.exists(config[MODEL_PATH]):
             raise FileNotFoundError(
-                f"LLM Model file not found at {config[MODEL_PATH]}. Please check your database configuration."
-            )
+                f"LLM Model file not found at {config[MODEL_PATH]}.")
 
-        # model specific tweaks to handle combinations
-        # TO-DO: make it more dynamic
+        # Apply model-specific optimizations
         if TINYLLAMA in config[LOCAL_LLM_MODEL].lower():
-            config.update(
-                {TEMPERATURE: 0.7, TOP_P: 0.9, REPEAT_PENALTY: 1.2})
+            config.update({TEMPERATURE: 0.7, TOP_P: 0.9, REPEAT_PENALTY: 1.2})
         elif LLAMA2 in config[LOCAL_LLM_MODEL].lower():
-            config.update(
-                {TEMPERATURE: 0.5, TOP_P: 0.8, REPEAT_PENALTY: 1.1})
+            config.update({TEMPERATURE: 0.5, TOP_P: 0.8, REPEAT_PENALTY: 1.1})
         elif MISTRAL in config[LOCAL_LLM_MODEL].lower():
             config.update(
                 {TEMPERATURE: 0.7, TOP_P: 0.95, REPEAT_PENALTY: 1.05})
 
-        # if the config has not changed then return the model and the config
         if self.config == config:
-            return
+            return self.model, config  # Return cached model
 
-        # load the model only if there is a change in the config.
-        # assuming this will be reloaded other wise it would have been handled above
         print("🔄 Reloading LLM model due to configuration change...")
-        return Llama(
+
+        self.model = LlamaCpp(
             model_path=config[MODEL_PATH],
             n_ctx=config[CONTEXT_WINDOW],
             n_batch=config[N_BATCH],
             n_threads=os.cpu_count(),
-            n_gpu_layers=20 if torch.cuda.is_available() else 0
-        ), config[CONTEXT_WINDOW], config[MAX_TOKENS], config[TEMPERATURE], config[TOP_P], config[REPEAT_PENALTY]
+            n_gpu_layers=20 if torch.cuda.is_available() else 0,
+            temperature=config[TEMPERATURE],
+            top_p=config[TOP_P],
+            repeat_penalty=config[REPEAT_PENALTY],
+        )
 
-    def truncate_prompt(self, prompt, context_window):
-        """Ensure the prompt does not exceed the model's context window."""
-        model, *_ = self.get_model()
-        prompt_tokens = model.tokenize(prompt.encode("utf-8"))
-        max_tokens = context_window - 100  # Leave space for response
+        self.config = config  # Cache latest configuration
+        return self.model, config
 
-        if len(prompt_tokens) > max_tokens:
-            print(
-                f"⚠️ Truncating prompt: {len(prompt_tokens)} → {max_tokens} tokens"
-            )
-            prompt_tokens = prompt_tokens[:max_tokens]
+    def retrieve_context(self, query):
+        """Retrieve relevant context using FAISS vector store."""
+        return vector_store.retrieve(query)
 
-        return model.detokenize(prompt_tokens).decode("utf-8")
+    def truncate_prompt(self, prompt):
+        """Ensure prompt fits within the context window using LangChain’s `TokenTextSplitter`."""
+        model, config = self.get_model()
+        context_window = config[CONTEXT_WINDOW]
+
+        splitter = TokenTextSplitter(
+            chunk_size=context_window - 200, chunk_overlap=20
+        )
+        truncated_text = splitter.split_text(prompt)
+
+        if not truncated_text:
+            raise ValueError("⚠️ Prompt could not be tokenized properly.")
+
+        return truncated_text[0]  # Use first valid chunk
 
     def generate(self, prompt):
-        """Generate a response from the LLM."""
-        model, context_window, max_tokens, temperature, top_p, repeat_penalty = self.get_model()
-        prompt = self.truncate_prompt(prompt, context_window)
+        """Generate response using LangChain's `RunnableSequence`."""
+        model, config = self.get_model()
+        prompt = self.truncate_prompt(prompt)
 
-        output = model(
-            prompt,
-            max_tokens=min(max_tokens, context_window // 2),
-            temperature=temperature,
-            top_p=top_p,
-            repeat_penalty=repeat_penalty
-        )
-        return output["choices"][0]["text"].strip()
+        # Define prompt template for LangChain
+        template = PromptTemplate(
+            input_variables=["input"], template="{input}")
+
+        chain = template | model
+        return chain.invoke({"input": prompt}).strip()
 
     async def generate_stream(self, prompt):
         """Stream responses token-by-token for WebSocket clients."""
-        model, context_window, max_tokens, temperature, top_p, repeat_penalty = self.get_model()
-        prompt = self.truncate_prompt(prompt, context_window)
+        model, config = self.get_model()
+        prompt = self.truncate_prompt(prompt)
 
-        async for token in self.local_stream(
-            model, prompt, max_tokens, temperature, top_p, repeat_penalty
-        ):
+        async for token in self.local_stream(model, prompt, config[MAX_TOKENS]):
             yield token
 
-    async def local_stream(self, model, prompt, max_tokens, temperature, top_p, repeat_penalty):
+    async def local_stream(self, model, prompt, max_tokens):
         """Helper function for local model streaming."""
-        for output in model(
-            prompt,
-            max_tokens=min(max_tokens, 512),  # Avoid excessive length
-            temperature=temperature,
-            top_p=top_p,
-            repeat_penalty=repeat_penalty,
-            stream=True
-        ):
-            yield output["choices"][0]["text"]
-            await asyncio.sleep(0)  # Allow async execution
+        used_tokens = 0
+
+        async for output in model.astream(prompt, max_tokens=min(max_tokens, 512)):
+            if used_tokens >= max_tokens:
+                break
+
+            yield output
+            used_tokens += len(output.split())
+            await asyncio.sleep(0)
 
     def get_selected_model(self):
         """Fetch updated model details for UI."""
         return {
-            "model": get_config_value("local-llm-model"),
-            "path": get_config_value("model-path"),
+            "model": get_config_value(LOCAL_LLM_MODEL),
+            "path": get_config_value(MODEL_PATH),
         }
 
 

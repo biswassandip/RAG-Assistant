@@ -86,17 +86,12 @@
                     let historyDiv = document.getElementById("chat-history");
                     historyDiv.innerHTML = "";
                     history.forEach((chat, index) => {
-                        let filesList = chat.retrieved_files.map(file =>
-                            `<li>${ file.file_name } (${ file.file_type }, Uploaded: ${ file.uploaded_date })</li>`
-                        ).join("");
-
                         let bgColor = index % 2 === 0 ? "chat-card-light" : "chat-card-dark";
 
                         let entry = `<div class="chat-card ${ bgColor }">
                         <strong>${ chat.timestamp }</strong><br>
                         <strong>Question:</strong> <p>${ chat.question }</p>
                         <strong>Model used:</strong> <p>${ chat.selected_models.model }, ${ chat.selected_models.path }</p>
-                        <strong>Referenced files:</strong> <ul>${ filesList }</ul>
                         <strong>Summary:</strong> <p>${ chat.retrieved_summary }</p>
                         <strong>Answer:</strong> <p>${ chat.final_answer }</p>
                     </div>`;

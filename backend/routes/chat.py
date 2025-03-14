@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from datetime import datetime
-from services.vectorstore import vector_store
+# from services.vectorstore import vector_store
 from services.llm import llm_service
 from routes.upload import uploaded_files_metadata  # Import uploaded file metadata
 from fastapi import APIRouter
@@ -37,42 +37,25 @@ async def chat_stream(websocket: WebSocket):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             # Retrieve documents and identify relevant files
-            relevant_files = []
-            results = vector_store.retrieve(question)
+            retrieved_files = []
+            retrieved_docs = []
+            results = llm_service.retrieve_context(question)
+            if results:
+                retrieved_docs = results.get("retrieved_docs", [])
+                retrieved_files = results.get("retrieved_files", [])
 
             # get the selected models and path used
             selected_models = llm_service.get_selected_model()
 
-            if results:
-                # Ensure unique files using a set with tuple representation
-                seen_files = set()
-                unique_files = []
-
-                for file in results["retrieved_files"]:
-                    file_tuple = (file["file_name"],
-                                  file["file_type"], file["uploaded_date"])
-                    if file_tuple not in seen_files:
-                        seen_files.add(file_tuple)
-                        unique_files.append(file)
-
-                relevant_files = unique_files  # Assign unique files
 
             # Improved summarization prompt
             summary_prompt = f"""
-            You are a highly intelligent assistant. Given the retrieved documents below, generate a concise and relevant summary that directly answers the user's question.
+            Context from retrieved documents:
+            {retrieved_docs}
 
-            - **Only include relevant facts**
-            - **Avoid generic or repetitive information**
-            - **If multiple documents are retrieved, merge overlapping details**
-            - **Do not include unnecessary introductions or disclaimers**
-            - **Structure the summary logically**
+            User's Question: {question}
 
-            **User Question:** {question}
-
-            **Retrieved Documents:** 
-            {results}
-
-            **Generate a factual summary:**
+            Provide a concise and well-structured answer:
             """
 
             # Generate a summary using the improved prompt
@@ -84,9 +67,9 @@ async def chat_stream(websocket: WebSocket):
                 await websocket.send_json({"type": "summary", "data": token})
 
             # ✅ Send Retrieved Files Info
-            await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}\n\nReferenced Files:"})
-            for file in relevant_files:
-                await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
+            await websocket.send_json({"type": "faiss", "data": f"🔹 Summary:\n{summary_response}"})
+            # for file in retrieved_files:
+            #     await websocket.send_json({"type": "faiss", "data": f"📄 {file['file_name']} ({file['file_type']}, Uploaded: {file['uploaded_date']})"})
 
             final_answer_prompt = f"""
             You are an expert assistant providing detailed and well-structured answers.
@@ -117,7 +100,6 @@ async def chat_stream(websocket: WebSocket):
             chat_history[client_id].append({
                 "timestamp": timestamp,
                 "question": question,
-                "retrieved_files": relevant_files,
                 "retrieved_summary": summary_response,
                 "final_answer": final_response,
                 "selected_models": selected_models
