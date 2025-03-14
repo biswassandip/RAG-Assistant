@@ -2,16 +2,16 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![LangChain](https://img.shields.io/badge/LangChain-Enabled-green)
-![License](https://img.shields.io/badge/License-MIT-brightgreen)
+
 
 ---
 
 ## 🏆 Introduction: What is RAG-Backend?
-**RAG-Backend** is a powerful **open-source, local LLM-powered Retrieval-Augmented Generation (RAG) system** designed for **intelligent document-based answering**. It allows users to **upload multiple file types** (PDFs, DOCX, Excel, Images, XML, etc.), **index them into a vector database**, and **perform intelligent searches** to get **accurate and context-aware responses**.  
+**RAG-Backend** is a powerful **open-source, local LLM-powered Retrieval-Augmented Generation (RAG) system** designed for **intelligent document-based answering**. It allows users to **upload multiple file types** (PDFs, DOCX, Excel, XML, etc.), **index them into a vector database**, and **perform intelligent searches** to get **accurate and context-aware responses**.  
 
 ### 🎯 Key Highlights:
 - **Works Offline** – No internet dependency, **privacy-first** approach.
-- **Multi-format Support** – Handles **PDFs, Word Docs, Excel, Images, XML, etc.**
+- **Multi-format Support** – Handles **PDFs, Word Docs, Excel, XML, etc.**
 - **Hybrid Search Mechanism** – Combines **vector-based retrieval (FAISS)** + **keyword-based retrieval (BM25)**.
 - **Local AI Chatbot** – Uses **Llama2, Mistral-7B, TinyLlama** via `llama.cpp` for **smart, real-time answers**.
 - **Optimized for Speed & Accuracy** – Uses **LangChain** for **query expansion & efficient search ranking**.
@@ -78,7 +78,7 @@ graph TD;
 ## 🔥 Key Features
 
 ### ✅ 1. Multi-format Document Processing
-- Parses and indexes **PDFs, DOCX, Excel, XML, Images, Text**.
+- Parses and indexes **PDFs, DOCX, Excel, XML, Text**.
 - Uses **OCR (Tesseract)** for images and **XML parsers** for structured files.
 
 ### ✅ 2. Hybrid Search
