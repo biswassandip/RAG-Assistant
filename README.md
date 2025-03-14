@@ -188,3 +188,9 @@ Open http://localhost:8000 in your browser.
 - ✅ Parallel processing for large-scale document indexing
 
 ---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
+
+This project also integrates open-source libraries under various licenses. Please review their respective licenses before commercial use.

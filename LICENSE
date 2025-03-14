@@ -1,0 +1,66 @@
+# MIT License
+
+Copyright (c) 2024 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Open-Source Dependencies & Licenses
+
+This project integrates open-source libraries, each under its respective license:
+
+| Dependency             | License Type      | Source / Attribution |
+|------------------------|------------------|----------------------|
+| beautifulsoup4==4.13.3 | MIT               | [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) |
+| fastapi==0.115.11     | MIT               | [FastAPI](https://github.com/tiangolo/fastapi) |
+| langchain==0.3.20     | MIT               | [LangChain](https://github.com/hwchase17/langchain) |
+| langchain_community==0.3.19 | MIT        | [LangChain Community](https://github.com/langchain-ai/langchain) |
+| langchain_core==0.3.45 | MIT               | [LangChain Core](https://github.com/langchain-ai/langchain) |
+| langchain_huggingface==0.1.2 | Apache-2.0  | [LangChain HuggingFace](https://github.com/langchain-ai/langchain) |
+| langchain_text_splitters==0.3.6 | MIT      | [LangChain Text Splitters](https://github.com/langchain-ai/langchain) |
+| numpy==2.2.3         | BSD               | [NumPy](https://github.com/numpy/numpy) |
+| opencv_python==4.11.0.86 | Apache-2.0    | [OpenCV](https://github.com/opencv/opencv) |
+| pandas==2.2.3        | BSD               | [Pandas](https://github.com/pandas-dev/pandas) |
+| Pillow==11.1.0       | PIL/Pillow License | [Pillow](https://github.com/python-pillow/Pillow) |
+| PyPDF2==3.0.1        | BSD               | [PyPDF2](https://github.com/py-pdf/PyPDF2) |
+| pytesseract==0.3.13  | Apache-2.0        | [pytesseract](https://github.com/madmaze/pytesseract) |
+| python_docx==1.1.2   | MIT               | [python-docx](https://github.com/python-openxml/python-docx) |
+| rank_bm25==0.2.2     | MIT               | [BM25 Ranking](https://github.com/dorianbrown/rank_bm25) |
+| SQLAlchemy==2.0.38   | MIT               | [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) |
+| torch==2.6.0         | BSD               | [PyTorch](https://github.com/pytorch/pytorch) |
+| uvicorn==0.34.0      | BSD               | [Uvicorn](https://github.com/encode/uvicorn) |
+| python-multipart==0.0.20 | MIT           | [python-multipart](https://github.com/andrew-d/python-multipart) |
+| websockets==15.0     | BSD               | [WebSockets](https://github.com/python-websockets/websockets) |
+| llama_cpp_python==0.3.5 | MIT            | [llama.cpp](https://github.com/ggerganov/llama.cpp) |
+| tiktoken==0.9.0      | MIT               | [tiktoken](https://github.com/openai/tiktoken) |
+| faiss-cpu==1.10.0    | MIT               | [FAISS](https://github.com/facebookresearch/faiss) |
+
+---
+
+## Notice
+- The authors of this project do not claim ownership over any of the above **third-party dependencies**.
+- This project **only integrates** these libraries to create a **Retrieval-Augmented Generation (RAG) backend**.
+- If you **intend to use this project commercially**, ensure you **comply with each library’s license**.
+
+For any questions or clarifications, please refer to the **original licenses** of each dependency.
+
+---
+
+🚀 **Enjoy building with RAG-Backend!**  
