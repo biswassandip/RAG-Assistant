@@ -1,6 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from datetime import datetime
-# from services.vectorstore import vector_store
 from services.llm import llm_service
 from routes.upload import uploaded_files_metadata  # Import uploaded file metadata
 from fastapi import APIRouter
