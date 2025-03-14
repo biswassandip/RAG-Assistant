@@ -148,9 +148,9 @@ Open http://localhost:8000 in your browser.
 ---
 
 ## 🎯 Future Enhancements
-✅ Support for Audio & Video Transcription (e.g., Whisper AI)
-✅ Fine-tuned LLMs for better contextual responses
-✅ Support for additional vector databases (Chroma, Pinecone, Weaviate)
-✅ Parallel processing for large-scale document indexing
+- ✅ Support for Audio & Video Transcription (e.g., Whisper AI)
+- ✅ Fine-tuned LLMs for better contextual responses
+- ✅ Support for additional vector databases (Chroma, Pinecone, Weaviate)
+- ✅ Parallel processing for large-scale document indexing
 
 ---
