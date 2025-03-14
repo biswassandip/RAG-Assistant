@@ -72,6 +72,8 @@ graph TD;
         ResponseStreamer -->|Streams Answer| User;
     end
 
+```
+---
 
 ## 🔥 Key Features
 
@@ -124,18 +126,21 @@ Edit
 python -m venv venv
 source venv/bin/activate   # On macOS/Linux
 venv\Scripts\activate      # On Windows
+```
 
 ### 3️⃣ Install Dependencies
 ```bash
 Copy
 Edit
 pip install -r requirements.txt
+```
 
 ### 4️⃣ Start the Backend
 ```bash
 Copy
 Edit
 python main.py
+```
 
 ### 5️⃣ Access the Web Interface
 Open http://localhost:8000 in your browser.
