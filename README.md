@@ -100,7 +100,7 @@ graph TD;
 ## 🛠 Tech Stack
 
 ### **Programming Language:**
-🟢 **Python 3.9+**
+🟢 **Python 3.10++**
 
 ### **Key Libraries & Frameworks:**
 - 🏗 **LangChain** – RAG and Query Optimization
