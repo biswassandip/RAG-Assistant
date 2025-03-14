@@ -72,7 +72,6 @@ graph TD;
         ResponseStreamer -->|Streams Answer| User;
     end
 
----
 
 ## 🔥 Key Features
 
